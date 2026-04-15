@@ -1,0 +1,41 @@
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional
+from datetime import date, datetime
+from models.okr import Okr
+
+
+# 新增OKR[请求]数据校验模型
+class OkrAddRequest(BaseModel):
+    program_id: Optional[int] = Field(None, description="项目id", alias="programId")
+    status: Optional[int] = Field(None, description="状态：0待完成，1已完成，2已放弃", alias="status")
+    kr_name: Optional[str] = Field(None, description="KR名称", alias="krName")
+    kr_desc: Optional[str] = Field(None, description="KR描述", alias="krDesc")
+
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )
+
+
+# 更新OKR[请求]数据校验模型
+class OkrUpdateRequest(OkrAddRequest):
+    id: Optional[int] = Field(None, description="OKR id", alias="id")
+
+
+# 单个信息响应数据校验模型
+class OkrItemResponse(OkrAddRequest):
+    id: int = Field(None, description="OKR id", alias="id")
+    create_time: datetime = Field(None, description="创建时间", alias="createTime")
+    update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+
+
+# OKR列表响应数据校验模型
+class OkrListResponse(BaseModel):
+    total: int = Field(None, description="OKR总数")
+    okr_list: list[OkrItemResponse] = Field(None, description="OKR列表", alias="okrList")
+    has_more: bool = Field(None, description="是否有更多", alias="hasMore")
+
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+</head>
+<body style="margin:0; padding:0; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color:#f7f9fc; color:#333; line-height:1.6;">
+<!-- 主容器 -->
+<div style="max-width:600px; margin:30px auto 0; padding:20px; background-color:#ffffff; border-radius:12px; box-shadow:0 2px 15px rgba(0,0,0,0.05);">
+    <!-- 头部 -->
+    <div style="text-align:center; padding-bottom:20px; border-bottom:1px solid #eee; margin-bottom:20px;">
+        <h1 style="color:#2d3748; font-size:24px; margin:0; font-weight:600;">欢迎你，{{ username }}！</h1>
+    </div>
+
+    <!-- 内容区 -->
+    <div style="padding:0 20px;">
+        <p style="font-size:16px; color:#4a5568; margin:16px 0;">你正在进行身份验证，以下是你的验证码：</p>
+        <!-- 验证码核心区域 -->
+        <p style="display:inline-block; padding:12px 24px; background:linear-gradient(135deg, #e53e3e, #c53030); color:white !important; font-size:28px !important; font-weight:bold; border-radius:8px; letter-spacing:4px; margin:10px 0;">
+            {{ code }}</p>
+        <p style="color:#718096; font-size:14px; margin-top:20px;">该验证码有效期为 {{ expire_minutes }}
+            分钟，请及时使用。</p>
+        <p style="font-size:16px; color:#4a5568; margin:16px 0;">如非本人操作，请忽略此邮件。</p>
+    </div>
+
+    <!-- 底部 -->
+    <div style="margin-top:30px; padding-top:20px; border-top:1px solid #eee; text-align:center; color:#a0aec0; font-size:12px;">
+        <p style="margin:0;">© 2026 {{ system_name }} 版权所有</p>
+        <p style="margin:5px 0 0;">此邮件为系统自动发送，请勿回复</p>
+    </div>
+</div>
+
+<!-- 移动端适配（极简版，靠百分比和最大宽度实现） -->
+<!-- 邮件客户端对@media支持差，用基础适配即可 -->
+<style type="text/css" media="only screen and (max-width: 600px)">
+    .email-container {
+        width: 90% !important;
+        padding: 15px !important;
+        margin-top: 15px !important;
+    }
+
+    .verification-code {
+        font-size: 24px !important;
+        padding: 10px 20px !important;
+    }
+
+    .email-header h1 {
+        font-size: 20px !important;
+    }
+</style>
+</body>
+</html>
