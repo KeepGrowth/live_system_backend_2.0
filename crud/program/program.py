@@ -10,29 +10,32 @@ from utils import security, sql
 
 # 新增项目
 async def add_program(
-        program_name: str,
+        program_info: dict,
         db: AsyncSession,
-        user_id: int,
 ):
-    new_program = Program(program_name=program_name, user_id=user_id)
+    new_program = Program(**program_info)
     db.add(new_program)
     await db.commit()
     await db.refresh(new_program)
     return new_program
 
 
-# 获取项目列表
+# 分页条件获取项目列表
 async def get_program_list(
         db: AsyncSession,
-        user_id: int,
-        page: int = 1,
-        page_size: int = 10,
+        query_params: dict,
 ):
-    return await sql.get_list_by_user_id(db, Program, user_id, page, page_size)
+    """
+    分页-条件查询项目列表
+    :param db:
+    :param query_params:
+    :return:
+    """
+    return await sql.common_query_list(db, query_params, Program)
 
 
 # 获取项目详情
-async def get_program_detail(
+async def get_program_by_id(
         program_id: int,
         db: AsyncSession,
 ):

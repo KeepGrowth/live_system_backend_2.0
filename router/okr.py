@@ -7,6 +7,7 @@ from crud import okr
 from models.users import User
 from schemas.okr import *
 from utils.auth import get_current_user
+from utils.response import Result
 
 # 创建api-router实例
 router = APIRouter(
@@ -15,51 +16,58 @@ router = APIRouter(
 )
 
 
+# 新增
 @router.post('/add')
 async def add_okr(
-        add_data: OkrAddRequest,
+        add_okr_info: OkrAddRequest,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    print(add_data.model_dump())
-    result = await okr.add_okr(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user.id)
+    result = await okr.add_okr(add_okr_info.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
     new_okr = OkrItemResponse().model_validate(result)
-    return success_response(message='新增OKR成功', data=new_okr)
+    return Result.success(msg='新增OKR成功', data=new_okr)
 
 
+# 条件查询
 @router.get('/list')
 async def get_okr_list(
-        page: int = Query(1, ge=1, description="页码"),
-        page_size: int = Query(10, ge=1, description="每页数量", alias="pageSize"),
+        okr_query_params: OkrQueryParams,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    total, result = await okr.get_okr_list(db, current_user.id, page, page_size)
+    okr_query_params.user_id = current_user_id
+    total, result = await okr.query_okr_list(db, query_params=okr_query_params.model_dump(exclude_none=True,
+                                                                                          exclude_unset=True))
     okr_list = [OkrItemResponse().model_validate(r) for r in result]
     res_data = OkrListResponse(okr_list=okr_list, total=total, has_more=total > len(okr_list))
-    return success_response(message='获取OKR列表成功', data=res_data)
+    return Result.success(data=res_data)
 
 
 @router.put('/update')
 async def update_okr(
         update_data: OkrUpdateRequest,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
+    if update_data.user_id != current_user_id:
+        return Result.error(msg='无权限更新该OKR', code=403)
     result = await okr.update_okr(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该OKR')
+        return Result.error(msg='更新OKR失败', code=403)
     updated_okr = OkrItemResponse().model_validate(result)
-    return success_response(message='更新OKR成功', data=updated_okr)
+    return Result.success(data=updated_okr)
 
 
 @router.delete('/delete')
 async def delete_okr(
         okr_id: int = Query(..., description="OKR id", alias="okrId"),
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
+    target_okr = await okr.get_okr_by_id(db, okr_id)
+    if target_okr.user_id != current_user_id:
+        return Result.error(msg='无权限删除该OKR', code=403)
     result = await okr.delete_okr(okr_id, db)
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该OKR')
-    return success_response(message='删除OKR成功')
+        return Result.error(msg='删除OKR失败', code=404)
+    return Result.success(msg='删除OKR成功')

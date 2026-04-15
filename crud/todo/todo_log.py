@@ -59,29 +59,103 @@ def build_filter_conditions(
 
 # 新增
 async def add_todo_log(add_data: dict, db: AsyncSession, user_id: int):
-    return await sql.add(db=db, model=TodoLog, user_id=user_id, add_data=add_data)
+    new_todo_log = TodoLog(**add_data, user_id=user_id)
+    db.add(new_todo_log)
+    await db.commit()
+    await db.refresh(TodoLog)
+    return new_todo_log
 
 
-# 条件查询列表
-async def query_todo_log_list(db: AsyncSession, user_id: int, filter_data: dict):
-    allow_filter_keys = ['user_id', 'todo_id', 'goal_id', 'program_id', 'okr_id', 'title', 'score', 'log_desc',
-                         'attachment_path', 'start_date', 'end_date']
-    conditions = build_filter_conditions(TodoLog, allow_filter_keys, filter_data)
-    total_stmt = select(func.count(TodoLog.id)).where(TodoLog.user_id == user_id)
-    list_stmt = select(TodoLog).where(TodoLog.user_id == user_id)
-    if conditions:
-        total_stmt = total_stmt.where(and_(*conditions))
-        list_stmt = list_stmt.where(and_(*conditions))
-    total = await db.execute(total_stmt)
-    total = total.scalar_one()
+# 条件查询列表-分页
+async def query_todo_log_list(
+        db: AsyncSession,
+        filter_data: dict,
+):
+    """
+    条件查询日志数据列表
+    :param db:
+    :param filter_data:
+    :return:
+    """
+    # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
+    total_stmt = select(func.count(TodoLog.id))
+    list_stmt = select(TodoLog)
+
+    # 2. 定义允许的筛选字段白名单，防止非法字段注入
+    allow_filter_keys = [
+        'user_id',
+        'todo_id',
+        'goal_id',
+        'program_id',
+        'okr_id',
+        'title',
+        'score',
+        'log_desc',
+        'emotion',
+    ]
+    # 3. 提取并处理分页参数
+    # 获取页码，默认为 1
+    page = filter_data.get('page', 1)
+    try:
+        page = int(page)
+        page = max(1, page)  # 保证页码至少为 1
+    except (ValueError, TypeError):
+        page = 1
+
+    # 获取每页数量，默认为 10
+    page_size = filter_data.get('page_size', 10)
+    try:
+        page_size = int(page_size)
+        # 限制最大每页数量，防止恶意请求过大导致数据库压力
+        page_size = min(page_size, 100)
+    except (ValueError, TypeError):
+        page_size = 10
+
+    # 计算偏移量 (offset = (页码 - 1) * 每页数量)
+    offset = (page - 1) * page_size
+
+    # 去除page和page_size参数
+    filter_data.pop('page', None)
+    filter_data.pop('page_size', None)
+
+    # 提取筛选条件
+    filter_conditions = build_filter_conditions(TodoLog, allow_filter_keys, filter_data)
+
+    # 4. 如果有筛选条件，添加到查询语句中
+    if filter_conditions:
+        total_stmt = total_stmt.where(and_(*filter_conditions))
+        list_stmt = list_stmt.where(and_(*filter_conditions))
+
+    # 5. 分页
+    list_stmt = list_stmt.offset(offset).limit(page_size)
+
+    # 6. 执行数据库查询（异步执行）
+    # 获取总数
+    total_result = await db.execute(total_stmt)
+    total = total_result.scalar() or 0  # 提取总数的标量值
+
+    # 获取列表数据
     list_result = await db.execute(list_stmt)
-    todo_log_list = list_result.scalars().all()
+    todo_log_list = list_result.scalars().all() or []  # 提取Todo对象列表
+    # 7. 返回结果
     return total, todo_log_list
+
+
+# 根据id查询todo_log
+async def get_todo_log_by_id(todo_log_id: int, db: AsyncSession):
+    stmt = select(TodoLog).where(TodoLog.id == todo_log_id)
+    todo_log = await db.execute(stmt)
+    todo_log = todo_log.scalar_one_or_none()
 
 
 # 删除
 async def delete_todo_log(todo_log_id: int, db: AsyncSession):
-    return await sql.delete_by_id(db=db, model=TodoLog, id=todo_log_id)
+    todo = await get_todo_log_by_id(todo_log_id, db)
+    if not todo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该TodoLog')
+    await db.delete(todo)
+    await db.commit()
+    return True
 
 
 # 更新

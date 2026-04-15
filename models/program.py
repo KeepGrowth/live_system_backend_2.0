@@ -60,4 +60,5 @@ class ProgramLog(ProgramBase):
     program_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('program.id'), nullable=True,
                                                       comment="外键关联-项目id")
     description: Mapped[str] = mapped_column(Text, nullable=True, comment="项目日志描述", default="")
+    emotion: Mapped[str] = mapped_column(String(50), nullable=True, comment="项目日志心情-AI预测")
     attachment_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="项目日志附件路径")

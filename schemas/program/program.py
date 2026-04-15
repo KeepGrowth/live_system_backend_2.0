@@ -6,6 +6,7 @@ from models.program import Program
 
 # 新增项目[请求]数据校验模型
 class ProgramAddRequest(BaseModel):
+    user_id: Optional[int] = Field(None, description="用户id", alias="userId")
     program_name: str = Field(None, description="项目名称", alias="programName")
     goal_id: Optional[int] = Field(None, description="目标id", alias="goalId")
     program_desc: str = Field(None, description="项目描述|预期达成结果", alias="programDesc")
@@ -32,6 +33,12 @@ class ProgramUpdateRequest(ProgramAddRequest):
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
     )
+
+
+# 条件查询请求参数
+class ProgramQueryParams(ProgramUpdateRequest):
+    page: Optional[int] = Field(None, description="页码", alias="page")
+    page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
 
 
 # 单个项目信息响应数据校验模型

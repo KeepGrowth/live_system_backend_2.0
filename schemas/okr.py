@@ -6,6 +6,7 @@ from models.okr import Okr
 
 # 新增OKR[请求]数据校验模型
 class OkrAddRequest(BaseModel):
+    user_id: Optional[int] = Field(None, description="用户id", alias="userId")
     program_id: Optional[int] = Field(None, description="项目id", alias="programId")
     status: Optional[int] = Field(None, description="状态：0待完成，1已完成，2已放弃", alias="status")
     kr_name: Optional[str] = Field(None, description="KR名称", alias="krName")
@@ -20,6 +21,12 @@ class OkrAddRequest(BaseModel):
 # 更新OKR[请求]数据校验模型
 class OkrUpdateRequest(OkrAddRequest):
     id: Optional[int] = Field(None, description="OKR id", alias="id")
+
+
+# 条件查询请求参数
+class OkrQueryParams(OkrAddRequest):
+    page: Optional[int] = Field(None, description="页码", alias="page")
+    page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
 
 
 # 单个信息响应数据校验模型

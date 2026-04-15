@@ -3,7 +3,9 @@ from typing import Optional
 from datetime import date, datetime
 
 
+# 新增todo日志参数
 class TodoLogAddRequest(BaseModel):
+    user_id: int = Field(None, description="user id", alias="userId")
     todo_id: int = Field(None, description="todo id", alias="todoId")
     goal_id: Optional[int] = Field(None, description="goal id", alias="goalId")
     program_id: Optional[int] = Field(None, description="program id", alias="programId")
@@ -11,6 +13,7 @@ class TodoLogAddRequest(BaseModel):
     title: str = Field(None, description="todo log title", alias="title")
     score: Optional[int] = Field(None, description="todo log score", alias="score")
     log_desc: Optional[str] = Field(None, description="todo log desc", alias="logDesc")
+    emotion: Optional[str] = Field(None, description="日志情绪-AI预测生成", alias="emotion")
     attachment_path: Optional[str] = Field(None, description="todo log attachment path", alias="attachmentPath")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
@@ -30,6 +33,7 @@ class TodoLogQueryRequest(BaseModel):
     """
     下列参数为允许的条件参数。
     """
+    user_id: int = Field(None, description="user id", alias="userId")
     todo_id: Optional[int] = Field(None, description="todo id", alias="todoId")
     start_date: Optional[date] = Field(None, description="开始时间", alias="startDate")
     end_date: Optional[date] = Field(None, description="结束时间", alias="endDate")
