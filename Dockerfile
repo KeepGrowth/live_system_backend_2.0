@@ -7,7 +7,7 @@ WORKDIR /app
 # 3. 复制依赖文件并安装
 # 先复制 requirements.txt 可以利用 Docker 缓存层，加快构建速度
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # 4. 复制项目所有代码
 COPY . .

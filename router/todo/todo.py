@@ -8,6 +8,7 @@ from models.todo.todo import Todo
 from models.users import User
 from schemas.todo.todo import *
 from utils.auth import get_current_user
+from utils.response import Result
 
 router = APIRouter(
     prefix='/api/todo',
@@ -23,7 +24,7 @@ async def add_todo(
 ):
     result = await todo.add_todo(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user.id)
     new_todo = TodoItemResponse().model_validate(result)
-    return success_response(message='新增Todo成功', data=new_todo)
+    return Result.success(msg='新增Todo成功', data=new_todo)
 
 
 # 条件查询todo列表
@@ -33,14 +34,13 @@ async def get_todo_list(
         db: AsyncSession = Depends(get_database),
         current_user: User = Depends(get_current_user)
 ):
-    print("1111", filter_data.model_dump())
     total, result = await todo.query_todo_list(db=db,
                                                user_id=current_user.id,
                                                filter_data=filter_data.model_dump(exclude_none=True,
                                                                                   exclude_unset=True))
     todo_list = [TodoItemResponse().model_validate(r) for r in result]
     res_data = TodoListResponse(todo_list=todo_list, total=total)
-    return success_response(message='获取Todo列表成功', data=res_data)
+    return Result.success(msg='获取Todo列表成功', data=res_data)
 
 
 @router.put('/update')
@@ -53,7 +53,7 @@ async def update_todo(
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
     updated_todo = TodoItemResponse().model_validate(result)
-    return success_response(message='更新Todo成功', data=updated_todo)
+    return Result.success(msg='更新Todo成功', data=updated_todo)
 
 
 @router.delete('/delete')
@@ -65,4 +65,4 @@ async def delete_todo(
     result = await todo.delete_todo(todo_id, db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
-    return success_response(message='删除Todo成功')
+    return Result.success(msg='删除Todo成功')
