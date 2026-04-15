@@ -1,9 +1,10 @@
-from fastapi import HTTPException, Body
+from fastapi import HTTPException, Body, Path
 from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
 from crud.todo import todo
+from crud.todo.todo import get_todo_by_id
 from models.todo.todo import Todo
 from models.users import User
 from schemas.todo.todo import *
@@ -18,11 +19,11 @@ router = APIRouter(
 
 @router.post('/add')
 async def add_todo(
-        add_data: TodoAddRequest = Body(...),
+        add_data: TodoAddRequest,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    result = await todo.add_todo(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user.id)
+    result = await todo.add_todo(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
     new_todo = TodoItemResponse().model_validate(result)
     return Result.success(msg='新增Todo成功', data=new_todo)
 
@@ -32,37 +33,38 @@ async def add_todo(
 async def get_todo_list(
         filter_data: TodoQueryRequest = Query(...),
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
     total, result = await todo.query_todo_list(db=db,
-                                               user_id=current_user.id,
                                                filter_data=filter_data.model_dump(exclude_none=True,
                                                                                   exclude_unset=True))
     todo_list = [TodoItemResponse().model_validate(r) for r in result]
     res_data = TodoListResponse(todo_list=todo_list, total=total)
-    return Result.success(msg='获取Todo列表成功', data=res_data)
+    return Result.success(data=res_data)
 
 
 @router.put('/update')
 async def update_todo(
         update_data: TodoUpdateRequest,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
+    update_data.user_id = current_user_id
     result = await todo.update_todo(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
     updated_todo = TodoItemResponse().model_validate(result)
-    return Result.success(msg='更新Todo成功', data=updated_todo)
+    return Result.success(data=updated_todo)
 
 
-@router.delete('/delete')
+@router.delete('/delete/{todo_id}')
 async def delete_todo(
-        todo_id: int = Query(..., description="Todo id", alias="todoId"),
+        todo_id: int = Path(...),
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
+    target_todo = await get_todo_by_id(todo_id, db)
+    if target_todo.user_id != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='无权限删除该Todo')
     result = await todo.delete_todo(todo_id, db)
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
-    return Result.success(msg='删除Todo成功')
+    return Result.success(data=result)

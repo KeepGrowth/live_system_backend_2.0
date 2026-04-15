@@ -51,7 +51,6 @@ def build_filter_conditions(
         else:
             model_field = getattr(model, key)
             filter_conditions.append(model_field == value)
-    print(filter_conditions)
 
     return filter_conditions
 
@@ -62,19 +61,21 @@ async def add_todo(
         db: AsyncSession,
         user_id: int,
 ):
-    new_todo = await sql.add(db, Todo, user_id, add_data)
+    new_todo = Todo(**add_data, user_id=user_id)
+    db.add(new_todo)
+    await db.commit()
+    await db.refresh(new_todo)
     return new_todo
 
 
-# 条件查询列表
+# 条件查询列表-分页
 async def query_todo_list(
         db: AsyncSession,
-        user_id: int,
         filter_data: dict,
 ):
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
-    total_stmt = select(func.count(Todo.id)).where(Todo.user_id == user_id)
-    list_stmt = select(Todo).where(Todo.user_id == user_id)
+    total_stmt = select(func.count(Todo.id))
+    list_stmt = select(Todo)
 
     # 2. 定义允许的筛选字段白名单，防止非法字段注入
     allow_filter_keys = [
@@ -84,7 +85,34 @@ async def query_todo_list(
         'okr_id',
         'start_date',
         'end_date',
+        'page',
+        'page_size',
+        'user_id'
     ]
+    # 3. 提取并处理分页参数
+    # 获取页码，默认为 1
+    page = filter_data.get('page', 1)
+    try:
+        page = int(page)
+        page = max(1, page)  # 保证页码至少为 1
+    except (ValueError, TypeError):
+        page = 1
+
+    # 获取每页数量，默认为 10
+    page_size = filter_data.get('page_size', 10)
+    try:
+        page_size = int(page_size)
+        # 限制最大每页数量，防止恶意请求过大导致数据库压力
+        page_size = min(page_size, 100)
+    except (ValueError, TypeError):
+        page_size = 10
+
+    # 计算偏移量 (offset = (页码 - 1) * 每页数量)
+    offset = (page - 1) * page_size
+
+    # 去除page和page_size参数
+    filter_data.pop('page', None)
+    filter_data.pop('page_size', None)
 
     # 提取筛选条件
     filter_conditions = build_filter_conditions(Todo, allow_filter_keys, filter_data)
@@ -94,16 +122,35 @@ async def query_todo_list(
         total_stmt = total_stmt.where(and_(*filter_conditions))
         list_stmt = list_stmt.where(and_(*filter_conditions))
 
+    # 5. 分页
+    list_stmt = list_stmt.offset(offset).limit(page_size)
+
     # 6. 执行数据库查询（异步执行）
     # 获取总数
     total_result = await db.execute(total_stmt)
-    total = total_result.scalar()  # 提取总数的标量值
+    total = total_result.scalar() or 0  # 提取总数的标量值
 
     # 获取列表数据
     list_result = await db.execute(list_stmt)
-    todo_list = list_result.scalars().all()  # 提取Todo对象列表
+    todo_list = list_result.scalars().all() or []  # 提取Todo对象列表
     # 7. 返回结果（总数+列表，方便前端做分页展示）
     return total, todo_list
+
+
+# 根据id查询todo
+async def get_todo_by_id(
+        todo_id: int,
+        db: AsyncSession,
+):
+    """
+    根据id查询todo
+    :param todo_id:
+    :param db:
+    :return:
+    """
+    stmt = select(Todo).where(Todo.id == todo_id)
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
 
 # 更新
@@ -111,9 +158,17 @@ async def update_todo(
         update_data: dict,
         db: AsyncSession,
 ):
-    todo = await sql.update_by_id(db=db, model=Todo, item_id=update_data['id'], update_data=update_data)
+    # 先看todoId是否存在。
+    todo = await get_todo_by_id(int(update_data['id']), db)
     if not todo:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
+        return None
+    # 3. 更新对象的属性
+    # 遍历 update_data 中的键值对，排除掉 id (通常主键不更新)
+    for key, value in update_data.items():
+        if key != 'id' and hasattr(todo, key):
+            setattr(todo, key, value)
+    await db.commit()
+    await db.refresh(todo)
     return todo
 
 
@@ -122,7 +177,8 @@ async def delete_todo(
         todo_id: int,
         db: AsyncSession,
 ):
-    result = await sql.delete_by_id(db=db, model=Todo, id=todo_id)
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
-    return result
+
+    stmt = delete(Todo).where(Todo.id == todo_id)
+    await db.execute(stmt)
+    await db.commit()
+    return True

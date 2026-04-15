@@ -6,11 +6,12 @@ from models.todo.todo import Todo
 
 # 新增todo数据校验
 class TodoAddRequest(BaseModel):
-    name: str = Field(None, description="todo名称", alias="name")
+    title: str = Field(None, description="todo名称", alias="title")
     finish_desc: Optional[str] = Field(None, description="完成描述", alias="finishDesc")
     quit_desc: Optional[str] = Field(None, description="放弃描述", alias="quitDesc")
     importance: Optional[int] = Field(None, description="todo重要程度：0紧急不重要，1紧急重要，2不紧急不重要，3不紧急重要",
                                       alias="importance")
+    user_id: Optional[int] = Field(None, description="外键关联-用户id", alias="userId")
     status: Optional[int] = Field(None, description="todo状态：0待完成，1进行中，2已完成,3已放弃", alias="status")
     focus_time: Optional[int] = Field(None, description="todo专注时间(分钟)", alias="focusTime")
     deadline: Optional[date] = Field(None, description="todo截止时间", alias="deadline")
