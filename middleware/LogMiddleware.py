@@ -10,6 +10,9 @@ logger = logging.getLogger("AccessLog")
 
 
 class LogMiddleware(BaseHTTPMiddleware):
+    """
+    记录请求相关信息，输入到日志表中。
+    """
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
         # 1. 开始计时
         start_time = time.time()
