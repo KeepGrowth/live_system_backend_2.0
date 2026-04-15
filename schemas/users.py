@@ -22,9 +22,8 @@ class UserLogin(BaseModel):
 class UserCreate(BaseModel):
     username: str
     password: str
-    meiall: Optional[str] = None
-    gender: Optional[int] = Field(None, alias="gender")
-    birthday: Optional[date] = Field(None, alias="birthday")
+    # 角色
+    role: Optional[int] = Field(None, alias="role")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
@@ -32,11 +31,19 @@ class UserCreate(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    user_id: Optional[int] = Field(None, alias="userId")
-    phone: Optional[str] = None
-    role: Optional[int] = None
-    avatar: Optional[str] = None
-    password: Optional[str] = None
+    id: Optional[int] = Field(None, alias="id")
+    username: Optional[str] = Field(None, alias="username")
+    birthday: Optional[date] = Field(None, alias="birthday")
+    email: Optional[str] = Field(None, alias="email")
+    gender: Optional[int] = Field(None, alias="gender")
+    avatar: Optional[str] = Field(None, alias="avatar")
+    role: Optional[int] = Field(None, alias="role")
+    status: Optional[int] = Field(None, alias="status")
+    status_desc: Optional[str] = Field(None, alias="statusDesc")
+    signature: Optional[str] = Field(None, alias="signature")
+    occupation: Optional[str] = Field(None, alias="occupation")
+    industry: Optional[str] = Field(None, alias="industry")
+    city: Optional[str] = Field(None, alias="city")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
@@ -56,10 +63,18 @@ class PwdUpdate(BaseModel):
 # 用户安全信息响应
 class SafeUserResponse(BaseModel):
     id: int = Field(None, alias="id")
-    username: str = Field(None, alias="username")
+    username: Optional[str] = Field(None, alias="username")
     birthday: Optional[date] = Field(None, alias="birthday")
     email: Optional[str] = Field(None, alias="email")
     gender: Optional[int] = Field(None, alias="gender")
+    avatar: Optional[str] = Field(None, alias="avatar")
+    role: Optional[int] = Field(None, alias="role")
+    status: Optional[int] = Field(None, alias="status")
+    status_desc: Optional[str] = Field(None, alias="statusDesc")
+    signature: Optional[str] = Field(None, alias="signature")
+    occupation: Optional[str] = Field(None, alias="occupation")
+    industry: Optional[str] = Field(None, alias="industry")
+    city: Optional[str] = Field(None, alias="city")
     create_time: Optional[datetime] = Field(None, alias="createTime")
     update_time: Optional[datetime] = Field(None, alias="updateTime")
 

@@ -25,8 +25,10 @@ class TodoLog(TodoLogBase):
                                                       comment="外键关联-项目id")
     okr_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('okr.id'), nullable=True,
                                                   comment="外键关联-OKR id")
+
     title: Mapped[str] = mapped_column(String(50), nullable=False, comment="todo日志标题")
     score: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="满意度评分-满分5分")
     log_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="todo日志描述")
+    emotion: Mapped[str] = mapped_column(String(50), nullable=True, comment="心情,由AI-agent预测得到的文本")
     # 附件存储路径
     attachment_path: Mapped[str] = mapped_column(Text, nullable=True, comment="todo日志附件")

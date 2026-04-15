@@ -18,7 +18,8 @@ class Todo(TodoBase):
     # 基础信息
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="todo id")
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False, comment="外键关联-用户id")
-    name: Mapped[str] = mapped_column(String(50), nullable=False, comment="todo名称")
+    title: Mapped[str] = mapped_column(String(150), nullable=False, comment="todo标题")
+    todo_goal: Mapped[str] = mapped_column(Text, nullable=True, comment="todo目标，此待办需要完成的目标")
     finish_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="完成描述")
     quit_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="放弃描述")
     importance: Mapped[int] = mapped_column(Integer, nullable=True, default=0,
@@ -27,6 +28,8 @@ class Todo(TodoBase):
                                         comment="todo状态：0待完成，1进行中，2已完成,3已放弃")
     focus_time: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="todo专注时间(分钟)")
     deadline: Mapped[Optional[date]] = mapped_column(Date, nullable=True, comment="todo截止时间")
+    emotion: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default=0,
+                                                   comment="todo心情：由AI预测的文本")
 
     # 联表信息
     goal_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True,

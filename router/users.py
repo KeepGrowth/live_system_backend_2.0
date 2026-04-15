@@ -36,6 +36,7 @@ async def login_api(
     return Result.success(data=res_data)
 
 
+# 用户注册功能
 @router.post("/register", summary="用户注册", status_code=status.HTTP_200_OK)
 async def register_api(
         user: UserCreate,
@@ -96,3 +97,54 @@ async def update_pwd_api(
         # 记录日志
         # logger.error(e)
         return Result.error(msg="系统错误，修改密码失败")
+
+
+# 用户修改个人信息接口
+@router.put("/info", summary="修改个人信息", status_code=status.HTTP_200_OK)
+async def update_info_api(
+        info: UserUpdate,
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    修改用户个人信息
+    :param info:
+    :param db:
+    :param current_user_id:
+    :return:
+    """
+    updated_user = await users.update_user(db, user_id=info.id,
+                                           user_update=info.model_dump(exclude_none=True, exclude_unset=True))
+    return Result.success(msg="修改个人信息成功", data=SafeUserResponse().model_validate(updated_user))
+
+
+# 禁用/解冻用户
+@router.put("/disable", summary="禁用/解冻用户", status_code=status.HTTP_200_OK)
+async def disable_user_api(
+        user_id: int = Query(..., title="用户ID"),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    禁用/解冻用户
+    :param user_id:
+    :param db:
+    :param current_user_id:
+    :return:
+    """
+    user = await users.get_user_by_id(db, user_id)
+    # 判断用户是否存在
+    if not user:
+        return Result.error(msg="用户不存在")
+    user_role = await users.get_user_by_id(db, current_user_id)
+    # 判断权限
+    if user_role.role != 1:
+        return Result.error(msg="无权限")
+    # 判断是否自杀
+    if user_id == current_user_id:
+        return Result.error(msg="管理员不能对自己执行此操作")
+    user.status = 1 if user.status == 0 else 0
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return Result.success(msg="操作成功", data=SafeUserResponse().model_validate(user))

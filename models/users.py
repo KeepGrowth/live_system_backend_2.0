@@ -1,4 +1,4 @@
-from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey
+from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text
 from typing import Optional
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
@@ -21,3 +21,19 @@ class User(UserBase):
     email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="邮箱")
     gender: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=0,
                                                   comment="性别： 0保密，1男，2女")  # 0保密，1男，2女
+    # 头像URL
+    avatar: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="头像URL")
+    # 角色
+    role: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=0, comment="角色：0普通用户，1管理员")
+    # 状态
+    status: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=0, comment="状态：0禁用，1正常")
+    # 状态描述（如果被禁用，这里要填充禁用说明。）
+    status_desc: Mapped[Optional[str]] = mapped_column(Text, nullable=True, comment="状态描述")
+    # 个性签名
+    signature: Mapped[Optional[str]] = mapped_column(Text, nullable=True, comment="个性签名")
+    # 职业
+    occupation: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="职业")
+    # 所在行业
+    industry: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="所在行业")
+    # 所在城市
+    city: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="所在城市")
