@@ -1,12 +1,13 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Path
 from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
 from crud.goal import goal
 from models.users import User
-from schemas.goal.goal import GoalAddRequest, GoalDetailResponse, GoalListResponse, GoalUpdateRequest
+from schemas.goal.goal import GoalAddRequest, GoalDetailResponse, GoalListResponse, GoalUpdateRequest, GoalQueryParams
 from utils.auth import get_current_user
+from utils.response import Result
 
 # 创建api-router实例
 router = APIRouter(
@@ -19,38 +20,50 @@ router = APIRouter(
 async def add_goal(
         goal_data: GoalAddRequest,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    result = await goal.add_goal(db=db, user_id=current_user.id,
+    goal_data.user_id = current_user_id
+    result = await goal.add_goal(db=db,
                                  goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True))
     new_goal = GoalDetailResponse.model_validate(result)
-    return success_response(message="新增目标成功", data=new_goal)
+    return Result.success(data=new_goal)
 
 
 @router.get('/list')
 async def get_goal_list(
-        page: int = Query(1, ge=1, description="页码"),
-        page_size: int = Query(10, ge=1, description="每页数量", alias="pageSize"),
+        goal_query_params: GoalQueryParams,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    total, result = await goal.get_goal_list(db=db, user_id=current_user.id, page=page, page_size=page_size)
-    goal_list = [GoalDetailResponse.model_validate(item.__dict__) for item in result]
-    goal_list = GoalListResponse(total=total, goal_list=goal_list, has_more=total > page * page_size)
-    return success_response(message="获取目标列表成功", data=goal_list)
+    """
+    条件分页查询目标数据列表
+    :param goal_query_params:条件查询参数
+    :param db:
+    :param current_user_id:
+    :return:
+    """
+    goal_query_params.user_id = current_user_id
+    total, goal_list = await goal.query_goal_list(db,
+                                                  goal_query_params.model_dump(exclude_none=True, exclude_unset=True))
+    goal_list = [GoalDetailResponse().model_validate(r) for r in goal_list]
+    res_data = GoalListResponse(total=total, goal_list=goal_list, has_more=total > len(goal_list))
+    return Result.success(data=res_data)
 
 
 # 删除
-@router.delete('/delete')
+@router.delete('/delete/{goal_id}')
 async def delete_goal(
-        goal_id: int = Query(..., description="目标id", alias="goalId"),
+        goal_id: int = Path(...),
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    result = await goal.delete_goal(db=db, goal_id=goal_id)
+    target_goal = await goal.get_goal_by_id(goal_id, db)
+    if target_goal.user_id != current_user_id:
+        return Result.error(msg='无权限删除该目标', code=403)
+    result = await goal.delete_goal(goal_id, db)
     if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="目标不存在")
-    return success_response(message="删除目标成功")
+        return Result.error(msg='删除目标失败', code=404)
+    return Result.success(msg="删除目标成功")
 
 
 # 更新
@@ -58,9 +71,15 @@ async def delete_goal(
 async def update_goal(
         goal_data: GoalUpdateRequest,
         db: AsyncSession = Depends(get_database),
-        current_user: User = Depends(get_current_user)
+        current_user_id: int = Depends(get_current_user)
 ):
-    result = await goal.update_goal(db=db, goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True),
-                                    user_id=current_user.id)
+    target_goal = await goal.get_goal_by_id(goal_data.id, db)
+    if target_goal.user_id != current_user_id:
+        return Result.error(msg='无权限更新该目标', code=403)
+    # 执行更新
+    goal_data.user_id = current_user_id
+    result = await goal.update_goal(db=db,
+                                    goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True)
+                                    )
     updated_goal = GoalDetailResponse.model_validate(result)
-    return success_response(message="更新目标成功", data=updated_goal)
+    return Result.success(data=updated_goal)

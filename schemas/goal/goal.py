@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 # 新增数据校验模型
 class GoalAddRequest(BaseModel):
+    user_id: Optional[int] = Field(None, description="用户id", alias="userId")
     goal_name: Optional[str] = Field(None, description="目标名称", alias="goalName")
     description: Optional[str] = Field(None, description="目标描述|预期达成结果", alias="description")
     goal_category_id: Optional[int] = Field(None, description="目标分类id", alias="goalCategoryId")
@@ -28,6 +29,12 @@ class GoalUpdateRequest(GoalAddRequest):
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
     )
+
+
+# 条件查询参数
+class GoalQueryParams(GoalUpdateRequest):
+    page: Optional[int] = Field(None, description="页码", alias="page")
+    page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
 
 
 # 单个目标信息返回数据模型

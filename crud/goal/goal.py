@@ -11,39 +11,41 @@ from utils import sql
 async def add_goal(
         goal_data: dict,
         db: AsyncSession,
-        user_id: int,
 ):
-    new_goal = Goal(**goal_data, user_id=user_id)
+    new_goal = Goal(**goal_data)
     db.add(new_goal)
     await db.commit()
     await db.refresh(new_goal)
     return new_goal
 
 
-# 获取列表
-async def get_goal_list(
+# 根据id获取目标信息
+async def get_goal_by_id(
+        goal_id: int,
         db: AsyncSession,
-        user_id: int,
-        page: int = 1,
-        page_size: int = 10,
 ):
-    total, goal_list = await sql.get_list_by_user_id(db, Goal, user_id, page, page_size)
-    return total, goal_list
+    """
+    根据id获取目标
+    :param goal_id:
+    :param db:
+    :return:
+    """
+    return await sql.get_by_id(db, Goal, goal_id)
+
+
+# 获取列表
+async def query_goal_list(
+        db: AsyncSession,
+        query_params: dict,
+):
+    return await sql.common_query_list(db, query_params, Goal)
 
 
 # 更新
 async def update_goal(
         goal_data: dict,
         db: AsyncSession,
-        user_id: int,
 ):
-    goal = await sql.get_by_id(db, Goal, goal_data.get('id'))
-    if not goal:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="目标不存在")
-
-    if goal.user_id != user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限更新该目标")
-
     updated_goal = await sql.update_by_id(db, Goal, goal_data.get('id'), goal_data)
     return updated_goal
 

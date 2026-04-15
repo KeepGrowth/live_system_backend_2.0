@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 # 新增数据校验模型
 class GoalCategoryAddRequest(BaseModel):
+    user_id: Optional[int] = Field(None, description="用户id", alias="userId")
     category_name: Optional[str] = Field(None, description="目标分类名称", alias="categoryName")
     description: Optional[str] = Field(None, description="目标分类描述")
 
@@ -14,9 +15,15 @@ class GoalCategoryAddRequest(BaseModel):
     )
 
 
-# 更新数据校验模型（继承父类配置，无需重复写）
+# 更新数据校验模型
 class GoalCategoryUpdateRequest(GoalCategoryAddRequest):
     id: int = Field(..., description="目标分类ID")  # 更新必须传ID，设为必填
+
+
+# 条件查询参数
+class GoalCategoryQueryParams(GoalCategoryAddRequest):
+    page: Optional[int] = Field(1, ge=1, description="页码")
+    page_size: Optional[int] = Field(10, ge=1, description="每页数量", alias="pageSize")
 
 
 # 单个目标分类信息返回数据模型
@@ -42,5 +49,4 @@ class GoalCategoryListResponse(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,  # 关键：兼容下划线字段名和驼峰alias
         from_attributes=True,
-        exclude_none=True  # 排除None字段
     )

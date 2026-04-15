@@ -4,9 +4,11 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+
+from middleware import LogMiddleware
 from router import users, weight
 from router.program import program_log, program
-from router.project import project, project_channel
 from router.goal import goal, goal_cate
 from router import okr
 from router.todo import todo, todo_log
@@ -16,12 +18,11 @@ from fastapi.responses import JSONResponse
 
 # 应用全局使用驼峰响应
 app = FastAPI(lifespan=lifespan)
+
 # 路由注入
 app.include_router(users.router)
 app.include_router(weight.router)
 app.include_router(program.router)
-app.include_router(project.router)
-app.include_router(project_channel.router)
 app.include_router(goal.router)
 app.include_router(goal_cate.router)
 app.include_router(okr.router)
@@ -31,10 +32,20 @@ app.include_router(todo_log.router)
 # cors跨域中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 允许访问的源，开发允许所有，生产环境需要指定。
+    allow_origins=["http://localhost:5173"],  # 允许访问的源，开发允许所有，生产环境需要指定。
     allow_credentials=True,  # 允许携带cookie
     allow_methods=["*"],  # 允许所有请求方法
     allow_headers=["*"],  # 允许所有请求头，token放置的地方。
+)
+
+# 还原请求IP中间件
+app.add_middleware(
+    ProxyHeadersMiddleware,
+)
+
+# 日志中间件
+app.add_middleware(
+    LogMiddleware.LogMiddleware,
 )
 
 

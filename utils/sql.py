@@ -112,7 +112,7 @@ async def get_by_id(
         db: AsyncSession,
         model: Type[DeclarativeBase],
         item_id: int,
-):
+) -> Optional[DeclarativeBase]:
     stmt = select(model).where(model.id == item_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()

@@ -11,9 +11,8 @@ from utils import sql
 async def add_goal_category(
         goal_category_data: dict,
         db: AsyncSession,
-        user_id: int,
 ):
-    new_goal_category = GoalCategory(**goal_category_data, user_id=user_id)
+    new_goal_category = GoalCategory(**goal_category_data)
     db.add(new_goal_category)
     await db.commit()
     await db.refresh(new_goal_category)
@@ -40,6 +39,14 @@ async def get_goal_category_list(
     return total, goal_category_list
 
 
+# 条件分页查询列表
+async def query_goal_category_list(
+        db: AsyncSession,
+        query_params: dict,
+):
+    return await sql.common_query_list(db, query_params, GoalCategory)
+
+
 # 更新
 async def update_goal_category(
         goal_category_data: dict,
@@ -48,9 +55,4 @@ async def update_goal_category(
     goal_category = await sql.get_by_id(db, GoalCategory, goal_category_data.get('id'))
     if not goal_category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="目标分类不存在")
-    goal_category.update_time = datetime.datetime.now()
-    goal_category = GoalCategory(**goal_category_data)
-    db.add(goal_category)
-    await db.commit()
-    await db.refresh(goal_category)
-    return goal_category
+    return await sql.update_by_id(db, GoalCategory, goal_category_data.get('id'), goal_category_data)
