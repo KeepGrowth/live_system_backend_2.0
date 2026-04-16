@@ -15,7 +15,7 @@ from models.base import Base
 from models import users
 from models.todo import todo, todo_log
 from models.goal import goal
-from models import program, weight, okr
+from models import program, weight, okr, upload_images
 
 # 数据库配置
 ASYNC_DATABASE_URL = "mysql+aiomysql://root:mysql_bhjbrr@192.168.1.86:3306/live_system_backup"

@@ -4,10 +4,11 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import select
 from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.staticfiles import StaticFiles
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from middleware import LogMiddleware
-from router import users, weight
+from router import users, weight, upload
 from router.program import program_log, program
 from router.goal import goal, goal_cate
 from router import okr
@@ -15,6 +16,8 @@ from router.todo import todo, todo_log
 from fastapi.middleware.cors import CORSMiddleware
 from config.mysql_config import lifespan, async_engine, get_database
 from fastapi.responses import JSONResponse
+
+from setting import UPLOAD_DIR
 
 # 应用全局使用驼峰响应
 app = FastAPI(lifespan=lifespan)
@@ -28,6 +31,10 @@ app.include_router(goal_cate.router)
 app.include_router(okr.router)
 app.include_router(todo.router)
 app.include_router(todo_log.router)
+app.include_router(upload.router)
+
+# 挂载uploads目录为静态文件目录
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # cors跨域中间件
 app.add_middleware(

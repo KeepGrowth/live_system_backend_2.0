@@ -7,7 +7,52 @@ from starlette import status
 import datetime
 from pydantic import BaseModel
 
-from crud.todo.todo import build_filter_conditions
+
+def build_filter_conditions(
+        model,  # 传入的模型类（比如Todo、Task等）
+        allow_filter_keys: list,  # 允许的筛选字段白名单列表
+        filter_data: dict,  # 前端传入的筛选条件字典
+        date_field_map: dict = None  # 日期字段映射（可选，指定哪些字段对应模型的哪个日期字段）
+):
+    """
+    通用筛选条件拼接方法
+    :param model: 数据模型类（如Todo）
+    :param allow_filter_keys: 允许的筛选字段列表，如['status', 'start_date', 'end_date']
+    :param filter_data: 筛选条件字典，如{"status": "done", "start_date": "2026-02-01"}
+    :param date_field_map: 日期字段映射，默认{"start_date": "deadline", "end_date": "deadline"}，可自定义
+    :return: 拼接好的筛选条件列表
+    """
+    # 默认日期字段映射（如果前端传start_date/end_date，对应模型的deadline字段）
+    if date_field_map is None:
+        date_field_map = {
+            "start_date": "deadline",
+            "end_date": "deadline"
+        }
+
+    filter_conditions = []
+    # 遍历筛选条件，只处理白名单内的字段
+    for key in filter_data.keys():
+        if key not in allow_filter_keys:
+            continue
+
+        value = filter_data[key]
+        # 跳过空值（None/空字符串）
+        if value is None or value == "":
+            continue
+
+        # 处理日期字段（start_date/end_date）
+        if key in date_field_map:
+            model_field = getattr(model, date_field_map[key])
+            if key == "start_date":
+                filter_conditions.append(model_field >= value)
+            elif key == "end_date":
+                filter_conditions.append(model_field <= value)
+        # 处理普通字段（等值匹配）
+        else:
+            model_field = getattr(model, key)
+            filter_conditions.append(model_field == value)
+
+    return filter_conditions
 
 
 # 去除字典中的空值
