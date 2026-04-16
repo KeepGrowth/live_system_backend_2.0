@@ -13,6 +13,14 @@ class GoalBase(Base):
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间")
 
+    @property
+    def create_time_str(self) -> str:
+        return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    @property
+    def update_time_str(self) -> str:
+        return self.update_time.strftime("%Y-%m-%d %H:%M:%S")
+
 
 # 目标分类表
 class GoalCategory(GoalBase):
@@ -80,3 +88,41 @@ class Goal(GoalBase):
     todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="goal", lazy="dynamic")
     # 一个目标有多张图片
     upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="goal", lazy="dynamic")
+
+    # ------------------- 标签映射方法 -------------------
+    @property
+    def goal_status_label(self) -> str:
+        """
+        目标状态标签
+        :return:
+        """
+        if self.goal_status == 0:
+            return "待完成"
+        elif self.goal_status == 1:
+            return "进行中"
+        elif self.goal_status == 2:
+            return "已完成"
+        elif self.goal_status == 3:
+            return "已放弃"
+
+    @property
+    def start_date_str(self) -> str:
+        """
+        目标开始时间标签
+        :return:
+        """
+        if self.start_date:
+            return self.start_date.strftime("%Y-%m-%d")
+        else:
+            return "无"
+
+    @property
+    def finish_date_str(self) -> str:
+        """
+        目标完成时间标签
+        :return:
+        """
+        if self.finish_date:
+            return self.finish_date.strftime("%Y-%m-%d")
+        else:
+            return "无"

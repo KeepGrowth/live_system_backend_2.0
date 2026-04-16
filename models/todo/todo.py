@@ -30,7 +30,7 @@ class Todo(TodoBase):
     status: Mapped[int] = mapped_column(Integer, nullable=True, default=0,
                                         comment="todo状态：0待完成，1进行中，2已完成,3已放弃")
     focus_time: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="todo专注时间(分钟)")
-    deadline: Mapped[Optional[date]] = mapped_column(Date, nullable=True, comment="todo截止时间")
+    deadline: Mapped[Optional[date]] = mapped_column(Date, nullable=True, comment="todo截止日期")
     emotion: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default=0,
                                                    comment="todo心情：由AI预测的文本")
 
@@ -40,8 +40,6 @@ class Todo(TodoBase):
     program_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('program.id'), nullable=True,
                                                       comment="外键关联-项目id")
     okr_id = mapped_column(Integer, ForeignKey('okr.id'), nullable=True, comment="外键关联-OKR id")
-    # 附件信息
-    attachment_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="todo附件路径")
 
     # --- 反向映射关系 ---
     # 一个todo对应一个用户
@@ -56,3 +54,38 @@ class Todo(TodoBase):
     todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo", lazy="dynamic")
     # 一个todo对应多个图片
     upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo", lazy="dynamic")
+
+    # -------------------- 标签映射方法 --------------------
+    @property
+    def status_label(self) -> str:
+        """
+        todo状态标签
+        :return:
+        """
+        if self.status == 0:
+            return "待完成"
+        elif self.status == 1:
+            return "进行中"
+        elif self.status == 2:
+            return "已完成"
+        elif self.status == 3:
+            return "已放弃"
+        else:
+            return "未知"
+
+    @property
+    def importance_label(self) -> str:
+        """
+        todo重要程度标签
+        :return:
+        """
+        if self.importance == 0:
+            return "紧急不重要"
+        elif self.importance == 1:
+            return "紧急重要"
+        elif self.importance == 2:
+            return "不紧急不重要"
+        elif self.importance == 3:
+            return "不紧急重要"
+        else:
+            return "未知"

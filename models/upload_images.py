@@ -21,6 +21,7 @@ class UploadImages(UploadBase):
     todo_log_id: Mapped[int] = mapped_column(Integer, ForeignKey('todo_log.id'), nullable=True,
                                              comment="外键-todo_log_id")
     todo_id: Mapped[int] = mapped_column(Integer, ForeignKey('todo.id'), nullable=True, comment="外键-todo_id")
+    okr_id: Mapped[int] = mapped_column(Integer, ForeignKey('okr.id'), nullable=True, comment="外键-okr_id")
     program_id: Mapped[int] = mapped_column(Integer, ForeignKey('program.id'), nullable=True, comment="外键-项目id")
     goal_id: Mapped[int] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True, comment="外键-目标id")
     image_url: Mapped[str] = mapped_column(Text, nullable=False, comment="图片URL")

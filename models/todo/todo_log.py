@@ -33,8 +33,6 @@ class TodoLog(TodoLogBase):
     score: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="满意度评分-满分5分")
     log_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="todo日志描述")
     emotion: Mapped[str] = mapped_column(String(50), nullable=True, comment="心情,由AI-agent预测得到的文本")
-    # 附件存储路径
-    attachment_path: Mapped[str] = mapped_column(Text, nullable=True, comment="todo日志附件")
 
     # --- 反向映射关系 ---
     # 一个todo_log对应一个todo

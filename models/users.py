@@ -42,8 +42,46 @@ class User(UserBase):
     city: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="所在城市")
 
     # --- 反向映射关系 ---
-    # 一个用户发布多个项目
+    # 一对多关系
+    # 关联项目
     programs: Mapped[List["Program"]] = relationship("Program", back_populates="user", lazy="dynamic")
-
-    # 一个用户发布多个目标
+    # 关联OKR
+    okrs: Mapped[List["Okr"]] = relationship("Okr", back_populates="user", lazy="dynamic")
+    # 关联目标
     goals: Mapped[List["Goal"]] = relationship("Goal", back_populates="user", lazy="dynamic")
+    # 关联项目完成日志
+    program_log: Mapped[List["ProgramLog"]] = relationship("ProgramLog", back_populates="user", lazy="dynamic")
+    # 关联todo
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="user", lazy="dynamic")
+    # 关联图片
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="user", lazy="dynamic")
+
+    # ----------------- 标签状态映射 -----------------
+    @property
+    def status_label(self) -> str:
+        if self.status == 0:
+            return "禁用"
+        elif self.status == 1:
+            return "正常"
+        else:
+            return "未知"
+
+    @property
+    def role_label(self) -> str:
+        if self.role == 0:
+            return "普通用户"
+        elif self.role == 1:
+            return "管理员"
+        else:
+            return "未知"
+
+    @property
+    def gender_label(self) -> str:
+        if self.gender == 0:
+            return "保密"
+        elif self.gender == 1:
+            return "男"
+        elif self.gender == 2:
+            return "女"
+        else:
+            return "未知"

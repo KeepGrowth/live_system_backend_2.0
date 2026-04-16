@@ -23,6 +23,7 @@ class Okr(OkrBase):
     user_id: Mapped[int] = mapped_column(Integer, nullable=False, comment="用户id")
     program_id: Mapped[int] = mapped_column(Integer, ForeignKey('program.id'), nullable=False,
                                             comment="外键-项目id")  # 相当于OKR中的O
+    goal_id: Mapped[int] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True, comment="外键-目标id")
     kr_name: Mapped[str] = mapped_column(String(255), nullable=False, comment="okr名称")
     kr_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="okr描述")
     status: Mapped[int] = mapped_column(Integer, default=0, comment="状态,0待完成，1已完成，2已放弃")
@@ -35,6 +36,10 @@ class Okr(OkrBase):
     # 一对一关系
     # 一个OKR只能对应一个项目
     program: Mapped["Program"] = relationship("Program", back_populates="okrs", foreign_keys=[program_id])
+    # 关联用户
+    user: Mapped["User"] = relationship("User", back_populates="okrs", foreign_keys=[user_id])
+    # 关联目标
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="okrs", foreign_keys=[goal_id])
 
     # 一对多关系
     # 一个OKR对应多个todo
@@ -43,3 +48,19 @@ class Okr(OkrBase):
     todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="okr", lazy="dynamic")
     # 一个OKR对应多张图片
     upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="okr", lazy="dynamic")
+
+    # ------------------------ 标签状态映射 -------------------------
+    @property
+    def status_label(self) -> str:
+        """
+        状态标签
+        :return:
+        """
+        if self.status == 0:
+            return "待完成"
+        elif self.status == 1:
+            return "已完成"
+        elif self.status == 2:
+            return "已放弃"
+        else:
+            return "未知"
