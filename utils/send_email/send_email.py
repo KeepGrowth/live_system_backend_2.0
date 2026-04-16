@@ -143,14 +143,14 @@ if __name__ == "__main__":
     # 第二步：发送模板邮件
     email_sender.send_email(
         to_emails=to_emails,
-        subject="测试邮件-模板渲染",
+        subject="测试邮件-模板渲染",  # 邮件主题
         template_name="welcome.html",
         template_data={
-            "title": "注册验证码",
-            "username": "阿斯蒂芬阿斯蒂芬",
-            "code": generate_code(),
+            "title": "注册验证码",  # 邮件标题
+            "username": "张同学",  # 用户名
+            "code": str(generate_code()),
             "expire_minutes": 10,
-            "system_name": "xxxx管理系统"
+            "system_name": "浮生录事-人生管理系统"
         }
     )
 
