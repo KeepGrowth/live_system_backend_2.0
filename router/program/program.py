@@ -34,7 +34,7 @@ async def add_program(
 # 条件查询分页列表
 @router.get('/list')
 async def get_program_list(
-        query_params: ProgramQueryParams,
+        query_params: ProgramQueryParams = Query(...),
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user),
 ):
@@ -50,7 +50,12 @@ async def get_program_list(
                                                         query_params=query_params.model_dump(exclude_none=True,
                                                                                              exclude_unset=True))
     program_list = [ProgramItemResponse().model_validate(item) for item in result_list]
-    res_data = ProgramListResponse(total=total, programList=program_list)
+    if len(program_list) == 0:
+        return Result.success(data=[])
+    res_data = ProgramListResponse(total=total,
+                                   programList=program_list,
+                                   has_more=query_params.page * query_params.page_size < total,
+                                   )
     return Result.success(data=res_data)
 
 

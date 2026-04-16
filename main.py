@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Body
 import uvicorn
 from fastapi import FastAPI, Depends
 from sqlalchemy import select
@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.staticfiles import StaticFiles
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
-
+import redis
 from middleware import LogMiddleware
 from router import users, weight, upload
 from router.program import program_log, program
@@ -17,7 +17,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from config.mysql_config import lifespan, async_engine, get_database
 from fastapi.responses import JSONResponse
 
+from schemas.users import UserUpdate
 from setting import UPLOAD_DIR
+from utils.response import Result
+from utils.send_email.generate_code import generate_code
+from utils.send_email.send_email import JinjaEmailSender
 
 # 应用全局使用驼峰响应
 app = FastAPI(lifespan=lifespan)
@@ -55,10 +59,51 @@ app.add_middleware(
     LogMiddleware.LogMiddleware,
 )
 
+# redis缓存
+# decode_responses=True 表示自动将 bytes 解码为字符串，方便操作
+r = redis.Redis(host='192.168.1.86', port=6379, db=0, decode_responses=True, password='redis_erHFmZ')
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+# 邮箱验证码接口
+@app.post('/api/send-email-code', summary="根据邮箱发送验证码")
+def send_email_code(
+        user_info: UserUpdate,
+):
+    """
+    根据邮箱发送验证码。
+    :return:
+    """
+    # 随机生成六位数的验证码
+    code = generate_code()
+    # 10分钟过期
+    r.set(user_info.email, code, ex=600)
+
+    email_sender = JinjaEmailSender()
+    # 2. 发送模版邮件
+    to_emails = [user_info.email]
+
+    # 3. 发送基于模板的HTML邮件（先创建模板文件）
+    email_sender.send_email(
+        to_emails=to_emails,
+        subject="浮生录事系统注册验证码",  # 邮件主题
+        template_name="welcome.html",
+        template_data={
+            "title": "注册验证码",  # 邮件标题
+            "username": user_info.username,  # 用户名
+            "code": str(code),
+            "expire_minutes": 10,
+            "system_name": "浮生录事-人生管理系统"
+        }
+    )
+
+    # 5. 关闭连接
+    email_sender.close()
+    return Result.success()
 
 
 # 代码启动 + 热重载配置
@@ -67,4 +112,5 @@ if __name__ == "__main__":
         "main:app",
         reload=True,
         port=8888,
+        host="localhost"
     )

@@ -13,7 +13,7 @@ class ProgramAddRequest(BaseModel):
     program_status: int = Field(None, description="项目状态：0待完成，1进行中，2已完成,3已放弃", alias="programStatus")
     attachment_path: Optional[str] = Field(None, description="项目附件路径", alias="attachmentPath")
     satisfaction_score: int = Field(None, description="项目满意度评分-满分5分",
-                                    alias="SatisfactionScore")
+                                    alias="satisfactionScore")
     estimate_finish_time: Optional[date] = Field(None, description="项目预估完成时间",
                                                  alias="estimateFinishTime")
     estimate_start_time: Optional[date] = Field(None, description="项目预估开始时间",
@@ -27,7 +27,7 @@ class ProgramAddRequest(BaseModel):
 
 # 更新项目[请求]数据校验模型
 class ProgramUpdateRequest(ProgramAddRequest):
-    id: int = Field(..., description="项目id", alias="programId")
+    id: Optional[int] = Field(None, description="项目id", alias="programId")
 
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
@@ -37,13 +37,13 @@ class ProgramUpdateRequest(ProgramAddRequest):
 
 # 条件查询请求参数
 class ProgramQueryParams(ProgramUpdateRequest):
-    page: Optional[int] = Field(None, description="页码", alias="page")
-    page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
+    page: Optional[int] = Field(1, description="页码", alias="page")
+    page_size: Optional[int] = Field(10, description="每页数量", alias="pageSize")
 
 
 # 单个项目信息响应数据校验模型
 class ProgramItemResponse(ProgramAddRequest):
-    id: int = Field(None, description="项目id", alias="id")
+    id: Optional[int] = Field(None, description="项目id", alias="id")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
 

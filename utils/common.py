@@ -1,4 +1,9 @@
 # 项目生成级联选项
+import redis
+
+r = redis.Redis(host='192.168.1.86', port=6379, db=0, decode_responses=True, password='redis_erHFmZ')
+
+
 def convert_to_year_program_options(data):
     """
     项目层级数据表工具
@@ -58,3 +63,23 @@ def convert_to_year_goal_options(data):
     # 转换为列表并按年份排序（可选）
     options = sorted(year_groups.values(), key=lambda x: x['value'])
     return options
+
+
+# 校验验证码
+def verify_code(
+        code: str,
+        email: str,
+):
+    print(email, code)
+    stored_code = r.get(email)
+    print(stored_code)
+    # 2. 校验
+    if not stored_code:
+        return False
+
+    if stored_code == code:
+        # 验证成功后，立即删除验证码，防止重用
+        r.delete(email)
+        return True
+    else:
+        return False

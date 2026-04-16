@@ -19,17 +19,6 @@ class UserLogin(BaseModel):
     )
 
 
-class UserCreate(BaseModel):
-    username: str
-    password: str
-    # 角色
-    role: Optional[int] = Field(None, alias="role")
-    model_config = ConfigDict(
-        populate_by_name=True,  # alias 、字段名兼容
-        from_attributes=True  # 允许从ORM对象属性中取值
-    )
-
-
 class UserUpdate(BaseModel):
     id: Optional[int] = Field(None, alias="id")
     username: Optional[str] = Field(None, alias="username")
@@ -44,6 +33,17 @@ class UserUpdate(BaseModel):
     occupation: Optional[str] = Field(None, alias="occupation")
     industry: Optional[str] = Field(None, alias="industry")
     city: Optional[str] = Field(None, alias="city")
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )
+
+
+class UserCreate(UserUpdate):
+    # 角色
+    role: Optional[int] = Field(None, alias="role")
+    code: Optional[str] = Field(None, alias="code")
+    password: Optional[str] = Field(None, alias="password")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
