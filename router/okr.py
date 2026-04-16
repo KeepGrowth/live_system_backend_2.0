@@ -71,14 +71,3 @@ async def delete_okr(
     if not result:
         return Result.error(msg='删除OKR失败', code=404)
     return Result.success(msg='删除OKR成功')
-
-
-# 获取OKR级联选项
-@router.get('/multi-options')
-async def get_okr_multi_options(
-        db: AsyncSession = Depends(get_database),
-        current_user_id: int = Depends(get_current_user)
-):
-    total, result = await okr.query_okr_list(db, query_params={"user_id": current_user_id})
-    result = convert_to_year_okr_options(result)
-    return Result.success(data=result)

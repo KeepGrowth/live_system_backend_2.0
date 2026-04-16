@@ -126,5 +126,6 @@ async def get_program_multi_options(
     根据用户ID，获取所有年份的所有项目，更改数据格式为级联选项格式。
     """
     total, result = await program.get_program_list(db, query_params={"user_id": current_user_id})
-    result = convert_to_year_program_options(result)
+    program_list = [ProgramItemResponse().model_validate(item) for item in result]
+    result = convert_to_year_program_options(program_list)
     return Result.success(data=result)
