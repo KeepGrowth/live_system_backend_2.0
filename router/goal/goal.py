@@ -7,6 +7,7 @@ from crud.goal import goal
 from models.users import User
 from schemas.goal.goal import GoalAddRequest, GoalDetailResponse, GoalListResponse, GoalUpdateRequest, GoalQueryParams
 from utils.auth import get_current_user
+from utils.common import convert_to_year_goal_options
 from utils.response import Result
 
 # 创建api-router实例
@@ -83,3 +84,17 @@ async def update_goal(
                                     )
     updated_goal = GoalDetailResponse.model_validate(result)
     return Result.success(data=updated_goal)
+
+
+# 获取目标级联选项
+@router.get('/multi-options')
+async def get_goal_multi_options(
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    根据用户ID，获取所有年份的所有目标，更改数据格式为级联选项格式。
+    """
+    total, result = await goal.query_goal_list(db, query_params={"user_id": current_user_id})
+    result = convert_to_year_goal_options(result)
+    return Result.success(data=result)

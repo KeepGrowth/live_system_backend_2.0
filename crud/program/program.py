@@ -23,7 +23,7 @@ async def add_program(
 # 分页条件获取项目列表
 async def get_program_list(
         db: AsyncSession,
-        query_params: dict,
+        query_params: dict = None,
 ):
     """
     分页-条件查询项目列表

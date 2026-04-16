@@ -8,6 +8,7 @@ from models.users import User
 from schemas.program.program import ProgramAddRequest, ProgramItemResponse, ProgramListResponse, ProgramUpdateRequest, \
     ProgramQueryParams
 from utils.auth import get_current_user
+from utils.common import convert_to_year_program_options
 from utils.response import Result
 
 # 创建api-router实例
@@ -113,3 +114,17 @@ async def update_program(
                                                        exclude_unset=True))
     res_data = ProgramItemResponse().model_validate(updated_program)
     return Result.success(data=res_data)
+
+
+# 获取项目级联选项
+@router.get('/multi-options')
+async def get_program_multi_options(
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    根据用户ID，获取所有年份的所有项目，更改数据格式为级联选项格式。
+    """
+    total, result = await program.get_program_list(db, query_params={"user_id": current_user_id})
+    result = convert_to_year_program_options(result)
+    return Result.success(data=result)
