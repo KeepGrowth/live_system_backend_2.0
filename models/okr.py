@@ -1,5 +1,8 @@
 from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text, Index, UniqueConstraint
-from typing import Optional
+from typing import Optional, List
+
+from sqlalchemy.orm import relationship
+
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
 
@@ -27,3 +30,16 @@ class Okr(OkrBase):
     __table_args__ = (
         UniqueConstraint('program_id', 'kr_name', name='uk_program_kr_name'),
     )
+
+    # --- 反向映射关系 ---
+    # 一对一关系
+    # 一个OKR只能对应一个项目
+    program: Mapped["Program"] = relationship("Program", back_populates="okrs", foreign_keys=[program_id])
+
+    # 一对多关系
+    # 一个OKR对应多个todo
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="okr", lazy="dynamic")
+    # 一个OKR对应多个todo_log
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="okr", lazy="dynamic")
+    # 一个OKR对应多张图片
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="okr", lazy="dynamic")

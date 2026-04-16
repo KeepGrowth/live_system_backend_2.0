@@ -1,5 +1,8 @@
 from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text
-from typing import Optional
+from typing import Optional, List
+
+from sqlalchemy.orm import relationship
+
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
 
@@ -37,3 +40,10 @@ class User(UserBase):
     industry: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="所在行业")
     # 所在城市
     city: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="所在城市")
+
+    # --- 反向映射关系 ---
+    # 一个用户发布多个项目
+    programs: Mapped[List["Program"]] = relationship("Program", back_populates="user", lazy="dynamic")
+
+    # 一个用户发布多个目标
+    goals: Mapped[List["Goal"]] = relationship("Goal", back_populates="user", lazy="dynamic")

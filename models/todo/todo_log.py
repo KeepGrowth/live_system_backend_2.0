@@ -1,5 +1,8 @@
 from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text, Index, UniqueConstraint
-from typing import Optional
+from typing import Optional, List
+
+from sqlalchemy.orm import relationship
+
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
 
@@ -32,3 +35,17 @@ class TodoLog(TodoLogBase):
     emotion: Mapped[str] = mapped_column(String(50), nullable=True, comment="心情,由AI-agent预测得到的文本")
     # 附件存储路径
     attachment_path: Mapped[str] = mapped_column(Text, nullable=True, comment="todo日志附件")
+
+    # --- 反向映射关系 ---
+    # 一个todo_log对应一个todo
+    todo: Mapped["Todo"] = relationship("Todo", back_populates="todo_logs", foreign_keys=[todo_id])
+    # 一个todo_log对应一个OKR
+    okr: Mapped["Okr"] = relationship("Okr", back_populates="todo_logs", foreign_keys=[okr_id])
+    # 一个todo_log对应一个项目
+    program: Mapped["Program"] = relationship("Program", back_populates="todo_logs", foreign_keys=[program_id])
+    # 一个todo_log对应一个目标
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="todo_logs", foreign_keys=[goal_id])
+    # 一个todo_log对应一个用户
+    user: Mapped["User"] = relationship("User", back_populates="todo_logs", foreign_keys=[user_id])
+    # 一个todo_log拥有多张图片
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo_log", )

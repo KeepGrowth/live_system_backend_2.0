@@ -1,5 +1,8 @@
 from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text, Index
-from typing import Optional
+from typing import Optional, List
+
+from sqlalchemy.orm import relationship
+
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
 
@@ -44,6 +47,17 @@ class Program(ProgramBase):
     # 预估开始时间
     estimate_start_time: Mapped[Optional[date]] = mapped_column(Date, nullable=True, comment="项目预估开始时间")
 
+    # --- 反向映射关系 ---
+    # 一个项目只能一个用户创建
+    user: Mapped["User"] = relationship("User", back_populates="program", foreign_keys=[user_id])
+    # 一个项目只能挂载一个目标
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="programs", foreign_keys=[goal_id])
+    # 一个项目拥有多个OKR
+    okrs: Mapped[List["Okr"]] = relationship("OKR", back_populates="program", lazy="dynamic")
+
+    # 一个项目只有一个项目完成日志
+    program_log: Mapped["ProgramLog"] = relationship("ProgramLog", back_populates="program", lazy="dynamic")
+
 
 # 项目完成日志
 class ProgramLog(ProgramBase):
@@ -62,3 +76,7 @@ class ProgramLog(ProgramBase):
     description: Mapped[str] = mapped_column(Text, nullable=True, comment="项目日志描述", default="")
     emotion: Mapped[str] = mapped_column(String(50), nullable=True, comment="项目日志心情-AI预测")
     attachment_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="项目日志附件路径")
+
+    # --- 反向映射关系 ---
+    # 一个项目完成日志只能对应一个项目
+    program: Mapped["Program"] = relationship("Program", back_populates="program_log", foreign_keys=[program_id])

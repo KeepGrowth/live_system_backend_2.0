@@ -1,5 +1,8 @@
 from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text, Index, UniqueConstraint
-from typing import Optional
+from typing import Optional, List
+
+from sqlalchemy.orm import relationship
+
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
 
@@ -39,3 +42,17 @@ class Todo(TodoBase):
     okr_id = mapped_column(Integer, ForeignKey('okr.id'), nullable=True, comment="外键关联-OKR id")
     # 附件信息
     attachment_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="todo附件路径")
+
+    # --- 反向映射关系 ---
+    # 一个todo对应一个用户
+    user: Mapped["User"] = relationship("User", back_populates="todos", foreign_keys=[user_id])
+    # 一个todo对应一个okr
+    okr: Mapped["Okr"] = relationship("Okr", back_populates="todos", foreign_keys=[okr_id])
+    # 一个todo对应一个项目
+    program: Mapped["Program"] = relationship("Program", back_populates="todos", foreign_keys=[program_id])
+    # 一个todo对应一个目标
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="todos", foreign_keys=[goal_id])
+    # 一个todo对应多个todo日志
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo", lazy="dynamic")
+    # 一个todo对应多个图片
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo", lazy="dynamic")
