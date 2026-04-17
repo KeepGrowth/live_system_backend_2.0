@@ -53,6 +53,7 @@ async def get_todo_list(
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
+    filter_data.user_id = current_user_id
     total, result = await todo.query_todo_list(db=db,
                                                filter_data=filter_data.model_dump(exclude_none=True,
                                                                                   exclude_unset=True))
@@ -75,7 +76,7 @@ async def update_todo(
     return Result.success(data=updated_todo)
 
 
-@router.delete('/delete/{todo_id}')
+@router.delete('/{todo_id}')
 async def delete_todo(
         todo_id: int = Path(...),
         db: AsyncSession = Depends(get_database),

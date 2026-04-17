@@ -80,7 +80,11 @@ async def query_todo_list(
         selectinload(Todo.todo_logs),
         selectinload(Todo.upload_images)
     )
-    return await sql.common_query_list(db, filter_data, total_stmt, list_stmt, Todo)
+    date_field_map = {
+        "start_date": "deadline",
+        "end_date": "deadline"
+    }
+    return await sql.common_query_list(db, filter_data, total_stmt, list_stmt, Todo, date_field_map)
 
 
 # 根据id查询todo

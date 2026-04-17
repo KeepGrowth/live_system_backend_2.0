@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 def build_filter_conditions(
         model,  # 传入的模型类（比如Todo、Task等）
-        allow_filter_keys: list,  # 允许的筛选字段白名单列表
         filter_data: dict,  # 前端传入的筛选条件字典
         date_field_map: dict = None  # 日期字段映射（可选，指定哪些字段对应模型的哪个日期字段）
 ):
@@ -30,16 +29,11 @@ def build_filter_conditions(
         }
 
     filter_conditions = []
+
     # 遍历筛选条件，只处理白名单内的字段
     for key in filter_data.keys():
-        if key not in allow_filter_keys:
-            continue
 
         value = filter_data[key]
-        # 跳过空值（None/空字符串）
-        if value is None or value == "":
-            continue
-
         # 处理日期字段（start_date/end_date）
         if key in date_field_map:
             model_field = getattr(model, date_field_map[key])
@@ -51,7 +45,7 @@ def build_filter_conditions(
         else:
             model_field = getattr(model, key)
             filter_conditions.append(model_field == value)
-
+        print('筛选出来的字段', filter_conditions)
     return filter_conditions
 
 
@@ -207,7 +201,8 @@ async def common_query_list(
         query_params: dict,
         total_stmt,
         list_stmt,
-        model: Type[DeclarativeBase]
+        model: Type[DeclarativeBase],
+        date_field_map=None,
 ):
     """
     分页条件查询模型数据列表
@@ -219,6 +214,7 @@ async def common_query_list(
     # 2. 定义允许的筛选字段白名单，防止非法字段注入
     mapper = inspect(model)
     allow_filter_keys = [key for key, value in mapper.columns.items()]
+    print("允许查询的参数", allow_filter_keys)
     # 3. 提取并处理分页参数
     # 获取页码，默认为 1
     page = query_params.get('page', 1)
@@ -229,7 +225,7 @@ async def common_query_list(
         page = 1
 
     # 获取每页数量，默认为 10
-    page_size = query_params.get('page_size', 10)
+    page_size = query_params.get('page_size', 1000)
     try:
         page_size = int(page_size)
         # 限制最大每页数量，防止恶意请求过大导致数据库压力
@@ -241,8 +237,10 @@ async def common_query_list(
     offset = (page - 1) * page_size
 
     # 提取筛选条件
-    filter_conditions = build_filter_conditions(model, allow_filter_keys, query_params)
-
+    query_params.pop('page', None)
+    query_params.pop('page_size', None)
+    filter_conditions = build_filter_conditions(model, query_params, date_field_map)
+    print('筛选条件', filter_conditions)
     # 4. 如果有筛选条件，添加到查询语句中
     if filter_conditions:
         total_stmt = total_stmt.where(and_(*filter_conditions))

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from typing import Optional, Union
 from datetime import date, datetime
 from schemas.todo.todo_log import TodoLogItemResponse
 from schemas.upload_images import UploadImagesResponse
@@ -8,6 +8,7 @@ from schemas.upload_images import UploadImagesResponse
 # 新增todo数据校验
 class TodoAddRequest(BaseModel):
     title: str = Field(None, description="todo名称", alias="title")
+    todo_goal: Optional[str] = Field(None, description="todo目标描述", alias="todoGoal")
     finish_desc: Optional[str] = Field(None, description="完成描述", alias="finishDesc")
     quit_desc: Optional[str] = Field(None, description="放弃描述", alias="quitDesc")
     importance: Optional[int] = Field(None, description="todo重要程度：0紧急不重要，1紧急重要，2不紧急不重要，3不紧急重要",
@@ -15,7 +16,7 @@ class TodoAddRequest(BaseModel):
     user_id: Optional[int] = Field(None, description="外键关联-用户id", alias="userId")
     status: Optional[int] = Field(None, description="todo状态：0待完成，1进行中，2已完成,3已放弃", alias="status")
     focus_time: Optional[int] = Field(None, description="todo专注时间(分钟)", alias="focusTime")
-    deadline: Optional[date] = Field(None, description="todo截止时间", alias="deadline")
+    deadline: Optional[Union[date, str]] = Field(None, description="todo截止时间", alias="deadline")
     goal_id: Optional[int] = Field(None, description="外键关联-目标id", alias="goalId")
     program_id: Optional[int] = Field(None, description="外键关联-项目id", alias="programId")
     okr_id: Optional[int] = Field(None, description="外键关联-OKR id", alias="okrId")
@@ -36,6 +37,7 @@ class TodoQueryRequest(BaseModel):
     """
     下列参数为允许的条件参数。
     """
+    user_id: Optional[int] = Field(None, description="用户id", alias="userId")
     page: Optional[int] = Field(None, description="页码", alias="page")
     page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
     start_date: Optional[date] = Field(None, description="开始时间", alias="startDate")
@@ -55,7 +57,6 @@ class TodoItemResponse(TodoAddRequest):
     id: int = Field(None, description="todo id", alias="id")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
-
     # 关联信息
     todo_logs: Optional[list[TodoLogItemResponse]] = Field(default_factory=list, description="todo日志列表",
                                                            alias="todoLogList")

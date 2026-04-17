@@ -26,7 +26,7 @@ class Todo(TodoBase):
     finish_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="完成描述")
     quit_desc: Mapped[str] = mapped_column(Text, nullable=True, comment="放弃描述")
     importance: Mapped[int] = mapped_column(Integer, nullable=True, default=0,
-                                            comment="todo重要程度：0紧急不重要，1紧急重要，2不紧急不重要，3不紧急重要")
+                                            comment="todo重要程度：0不紧急不重要，1不紧急重要，2不紧急不重要，3紧急重要")
     status: Mapped[int] = mapped_column(Integer, nullable=True, default=0,
                                         comment="todo状态：0待完成，1进行中，2已完成,3已放弃")
     focus_time: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="todo专注时间(分钟)")
@@ -44,17 +44,17 @@ class Todo(TodoBase):
 
     # --- 反向映射关系 ---
     # 一个todo对应一个用户
-    user: Mapped["User"] = relationship("User", back_populates="todos", foreign_keys=[user_id])
+    user: Mapped["User"] = relationship("User", back_populates="todos", foreign_keys=[user_id], lazy="selectin")
     # 一个todo对应一个okr
-    okr: Mapped["Okr"] = relationship("Okr", back_populates="todos", foreign_keys=[okr_id])
+    okr: Mapped["Okr"] = relationship("Okr", back_populates="todos", foreign_keys=[okr_id], lazy="selectin")
     # 一个todo对应一个项目
-    program: Mapped["Program"] = relationship("Program", back_populates="todos", foreign_keys=[program_id])
+    program: Mapped["Program"] = relationship("Program", back_populates="todos", foreign_keys=[program_id], lazy="selectin")
     # 一个todo对应一个目标
-    goal: Mapped["Goal"] = relationship("Goal", back_populates="todos", foreign_keys=[goal_id])
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="todos", foreign_keys=[goal_id], lazy="selectin")
     # 一个todo对应多个todo日志
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo", lazy="selectin")
     # 一个todo对应多个图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo", lazy="selectin")
 
     # -------------------- 标签映射方法 --------------------
     @property
