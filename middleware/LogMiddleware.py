@@ -1,8 +1,12 @@
 import time
 import logging
-from fastapi import Request
+from fastapi import Request, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.datastructures import Headers
+
+from config.mysql_config import get_database, AsyncSessionLocal
+from crud.log.system_log import add_log
 
 # 配置一下基本的日志格式（可选，为了好看点）
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -13,6 +17,7 @@ class LogMiddleware(BaseHTTPMiddleware):
     """
     记录请求相关信息，输入到日志表中。
     """
+
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
         # 1. 开始计时
         start_time = time.time()
@@ -34,6 +39,16 @@ class LogMiddleware(BaseHTTPMiddleware):
         process_time = (time.time() - start_time) * 1000  # 转换为毫秒
 
         # 5. 组装日志信息
+        async with AsyncSessionLocal() as session:
+            await add_log(db=session, system_log_info={
+                "log_type": '成功' if response.status_code < 400 else '失败',
+                "method": method,
+                "path": url_path,
+                "client_ip": real_ip,
+                "status_code": response.status_code,
+                "consume_time": process_time,
+                "request_params": query_params,
+            })
         # 这里我们只记录最关键的信息，避免日志太长
         log_message = (
             f"[{method}] {url_path} | "

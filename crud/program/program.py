@@ -53,8 +53,9 @@ async def get_program_by_id(
         db: AsyncSession,
 ):
     query = select(Program).options(
-        selectinload(Program.okrs),  # 预加载 okrs
+        selectinload(Program.okrs).selectinload(Okr.todos).selectinload(Todo.todo_logs),  # 预加载 okrs
         selectinload(Program.upload_images),
+        selectinload(Program.program_log),
     ).where(Program.id == program_id)
     result = await db.execute(query)
     program_detail = result.scalar_one_or_none()
