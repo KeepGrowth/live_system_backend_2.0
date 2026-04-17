@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
-from models.todo.todo import Todo
+from schemas.todo.todo_log import TodoLogItemResponse
+from schemas.upload_images import UploadImagesResponse
 
 
 # 新增todo数据校验
@@ -54,6 +55,12 @@ class TodoItemResponse(TodoAddRequest):
     id: int = Field(None, description="todo id", alias="id")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+
+    # 关联信息
+    todo_logs: Optional[list[TodoLogItemResponse]] = Field(default_factory=list, description="todo日志列表",
+                                                           alias="todoLogList")
+    image_urls: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
+                                                             alias="imageList")
 
 
 # 不分页查询列表返回数据模型

@@ -20,7 +20,7 @@ class Okr(OkrBase):
     # 创建查询索引
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="主键")
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False, comment="用户id")
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False, comment="用户id", )
     program_id: Mapped[int] = mapped_column(Integer, ForeignKey('program.id'), nullable=False,
                                             comment="外键-项目id")  # 相当于OKR中的O
     goal_id: Mapped[int] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True, comment="外键-目标id")
@@ -43,11 +43,11 @@ class Okr(OkrBase):
 
     # 一对多关系
     # 一个OKR对应多个todo
-    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="okr", lazy="dynamic")
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="okr", lazy="joined")
     # 一个OKR对应多个todo_log
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="okr", lazy="dynamic")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="okr", lazy="joined")
     # 一个OKR对应多张图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="okr", lazy="dynamic")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="okr", lazy="joined")
 
     # ------------------------ 标签状态映射 -------------------------
     @property

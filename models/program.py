@@ -50,22 +50,21 @@ class Program(ProgramBase):
     # --- 反向映射关系 ---
     # 一对一关系
     # 关联用户
-    user: Mapped["User"] = relationship("User", back_populates="program", foreign_keys=[user_id])
+    user: Mapped["User"] = relationship("User", back_populates="programs", foreign_keys=[user_id], lazy="joined")
     # 关联目标
-    goal: Mapped["Goal"] = relationship("Goal", back_populates="programs", foreign_keys=[goal_id])
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="programs", foreign_keys=[goal_id], lazy="joined")
     # 关联完成日志
-    program_log: Mapped["ProgramLog"] = relationship("ProgramLog", back_populates="program", lazy="dynamic")
+    program_log: Mapped["ProgramLog"] = relationship("ProgramLog", back_populates="program", lazy="joined")
 
     # 一对多关系
     # 关联图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="program_log",
-                                                               lazy="dynamic")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="program", lazy="joined")
     # 关联okr
-    okrs: Mapped[List["Okr"]] = relationship("OKR", back_populates="program_log", lazy="dynamic")
+    okrs: Mapped[List["Okr"]] = relationship("Okr", back_populates="program")
     # 关联todo
-    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="program_log", lazy="dynamic")
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="program")
     # 关联todo日志
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="program_log", lazy="dynamic")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="program")
 
 
 # 项目完成日志
@@ -80,6 +79,8 @@ class ProgramLog(ProgramBase):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="项目完成日志id")
+    user_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('user.id'), nullable=True,
+                                                   comment="外键关联-用户id")
     program_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('program.id'), nullable=True,
                                                       comment="外键关联-项目id")
     description: Mapped[str] = mapped_column(Text, nullable=True, comment="项目日志描述", default="")
@@ -89,6 +90,7 @@ class ProgramLog(ProgramBase):
     # --- 反向映射关系 ---
     # 一对一关系
     # 关联项目
-    program: Mapped["Program"] = relationship("Program", back_populates="program_log", foreign_keys=[program_id])
+    program: Mapped["Program"] = relationship("Program", back_populates="program_log", foreign_keys=[program_id],
+                                              lazy="joined")
     # 关联用户
-    user: Mapped["User"] = relationship("User", back_populates="program_log", lazy="dynamic")
+    user: Mapped["User"] = relationship("User", back_populates="program_log", lazy="joined")

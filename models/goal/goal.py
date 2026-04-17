@@ -1,8 +1,8 @@
+
 from sqlalchemy import func, Date, DateTime, String, Integer, ForeignKey, Text, Index
 from typing import Optional, List
 
 from sqlalchemy.orm import relationship
-
 from config.mysql_config import Base, mapped_column, Mapped
 from datetime import date, datetime
 
@@ -32,7 +32,7 @@ class GoalCategory(GoalBase):
 
     # --- 反向映射关系 ---
     # 一个目标分类下有多个目标
-    goals: Mapped[List["Goal"]] = relationship("Goal", back_populates="goal_category", lazy="dynamic")
+    goals: Mapped[List["Goal"]] = relationship("Goal", back_populates="goal_category")
 
 
 # 目标映射类
@@ -71,23 +71,23 @@ class Goal(GoalBase):
     # --- 反向映射关系 ---
     # 一对一关系
     # 一个目标智能一个用户拥有
-    user: Mapped["User"] = relationship("User", back_populates="goals", foreign_keys=[user_id], lazy="dynamic")
+    user: Mapped["User"] = relationship("User", back_populates="goals", foreign_keys=[user_id], lazy="joined")
 
     # 一个目标只能有一个目标分类
     goal_category: Mapped["GoalCategory"] = relationship("GoalCategory", back_populates="goals",
-                                                         foreign_keys=[goal_category_id])
+                                                         foreign_keys=[goal_category_id],lazy='joined')
 
     # 一对多关系
     # 一个目标有多个项目
-    programs: Mapped[List["Program"]] = relationship("Program", back_populates="goal", lazy="dynamic")
+    programs: Mapped[List["Program"]] = relationship("Program", back_populates="goal")
     # 一个目标有多个OKR
-    okrs: Mapped[List["Okr"]] = relationship("OKR", back_populates="goal", lazy="dynamic")
+    okrs: Mapped[List["Okr"]] = relationship("Okr", back_populates="goal")
     # 一个目标有多个todo日志
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="goal", lazy="dynamic")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="goal")
     # 一个目标有多个todo
-    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="goal", lazy="dynamic")
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="goal")
     # 一个目标有多张图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="goal", lazy="dynamic")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="goal")
 
     # ------------------- 标签映射方法 -------------------
     @property

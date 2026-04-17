@@ -1,5 +1,6 @@
 import datetime
 from fastapi import HTTPException
+from sqlalchemy.orm import selectinload
 from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete, and_
@@ -75,66 +76,11 @@ async def query_todo_list(
 ):
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Todo.id))
-    list_stmt = select(Todo)
-
-    # 2. 定义允许的筛选字段白名单，防止非法字段注入
-    allow_filter_keys = [
-        'status',
-        'goal_id',
-        'program_id',
-        'okr_id',
-        'start_date',
-        'end_date',
-        'page',
-        'page_size',
-        'user_id'
-    ]
-    # 3. 提取并处理分页参数
-    # 获取页码，默认为 1
-    page = filter_data.get('page', 1)
-    try:
-        page = int(page)
-        page = max(1, page)  # 保证页码至少为 1
-    except (ValueError, TypeError):
-        page = 1
-
-    # 获取每页数量，默认为 10
-    page_size = filter_data.get('page_size', 10)
-    try:
-        page_size = int(page_size)
-        # 限制最大每页数量，防止恶意请求过大导致数据库压力
-        page_size = min(page_size, 100)
-    except (ValueError, TypeError):
-        page_size = 10
-
-    # 计算偏移量 (offset = (页码 - 1) * 每页数量)
-    offset = (page - 1) * page_size
-
-    # 去除page和page_size参数
-    filter_data.pop('page', None)
-    filter_data.pop('page_size', None)
-
-    # 提取筛选条件
-    filter_conditions = build_filter_conditions(Todo, allow_filter_keys, filter_data)
-
-    # 4. 如果有筛选条件，添加到查询语句中
-    if filter_conditions:
-        total_stmt = total_stmt.where(and_(*filter_conditions))
-        list_stmt = list_stmt.where(and_(*filter_conditions))
-
-    # 5. 分页
-    list_stmt = list_stmt.offset(offset).limit(page_size)
-
-    # 6. 执行数据库查询（异步执行）
-    # 获取总数
-    total_result = await db.execute(total_stmt)
-    total = total_result.scalar() or 0  # 提取总数的标量值
-
-    # 获取列表数据
-    list_result = await db.execute(list_stmt)
-    todo_list = list_result.scalars().all() or []  # 提取Todo对象列表
-    # 7. 返回结果（总数+列表，方便前端做分页展示）
-    return total, todo_list
+    list_stmt = select(Todo).options(
+        selectinload(Todo.todo_logs),
+        selectinload(Todo.upload_images)
+    )
+    return await sql.common_query_list(db, filter_data, total_stmt, list_stmt, Todo)
 
 
 # 根据id查询todo
@@ -148,7 +94,10 @@ async def get_todo_by_id(
     :param db:
     :return:
     """
-    stmt = select(Todo).where(Todo.id == todo_id)
+    stmt = select(Todo).options(
+        selectinload(Todo.todo_logs),
+        selectinload(Todo.upload_images)
+    ).where(Todo.id == todo_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
@@ -177,7 +126,6 @@ async def delete_todo(
         todo_id: int,
         db: AsyncSession,
 ):
-
     stmt = delete(Todo).where(Todo.id == todo_id)
     await db.execute(stmt)
     await db.commit()

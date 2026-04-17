@@ -44,17 +44,19 @@ class User(UserBase):
     # --- 反向映射关系 ---
     # 一对多关系
     # 关联项目
-    programs: Mapped[List["Program"]] = relationship("Program", back_populates="user", lazy="dynamic")
+    programs: Mapped[List["Program"]] = relationship("Program", back_populates="user")
     # 关联OKR
-    okrs: Mapped[List["Okr"]] = relationship("Okr", back_populates="user", lazy="dynamic")
+    okrs: Mapped[List["Okr"]] = relationship("Okr", back_populates="user")
     # 关联目标
-    goals: Mapped[List["Goal"]] = relationship("Goal", back_populates="user", lazy="dynamic")
+    goals: Mapped[List["Goal"]] = relationship("Goal", back_populates="user")
     # 关联项目完成日志
-    program_log: Mapped[List["ProgramLog"]] = relationship("ProgramLog", back_populates="user", lazy="dynamic")
+    program_log: Mapped[List["ProgramLog"]] = relationship("ProgramLog", back_populates="user")
     # 关联todo
-    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="user", lazy="dynamic")
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="user")
+    # 关联todo日志
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="user")
     # 关联图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="user", lazy="dynamic")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="user")
 
     # ----------------- 标签状态映射 -----------------
     @property

@@ -51,9 +51,9 @@ class Todo(TodoBase):
     # 一个todo对应一个目标
     goal: Mapped["Goal"] = relationship("Goal", back_populates="todos", foreign_keys=[goal_id])
     # 一个todo对应多个todo日志
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo", lazy="dynamic")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo",lazy="joined")
     # 一个todo对应多个图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo", lazy="dynamic")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo",lazy="joined")
 
     # -------------------- 标签映射方法 --------------------
     @property

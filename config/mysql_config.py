@@ -12,10 +12,14 @@ from fastapi import FastAPI
 from models.base import Base
 
 # ---------------------------------------需要先导入包，才能在lifespan中创建所有的数据库表---------------------------------
-from models import users
-from models.todo import todo, todo_log
-from models.goal import goal
-from models import program, weight, okr, upload_images
+import models.upload_images
+import models.todo.todo_log
+import models.todo.todo
+import models.okr
+import models.program
+import models.goal.goal
+import models.users
+
 
 # 数据库配置
 ASYNC_DATABASE_URL = "mysql+aiomysql://root:mysql_bhjbrr@192.168.1.86:3306/live_system_backup"

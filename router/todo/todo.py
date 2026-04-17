@@ -28,6 +28,24 @@ async def add_todo(
     return Result.success(msg='新增Todo成功', data=new_todo)
 
 
+# 获取todo详情
+@router.get('/detail')
+async def get_todo_detail(
+        todo_id: int = Query(...,alias='todoId'),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+
+    :param todo_id:
+    :param db:
+    :param current_user_id:
+    :return:
+    """
+    result = await todo.get_todo_by_id(todo_id, db)
+    return Result.success(data=TodoItemResponse().model_validate(result))
+
+
 # 条件查询todo列表
 @router.get('/list')
 async def get_todo_list(

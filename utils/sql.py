@@ -205,6 +205,8 @@ async def add(
 async def common_query_list(
         db: AsyncSession,
         query_params: dict,
+        total_stmt,
+        list_stmt,
         model: Type[DeclarativeBase]
 ):
     """
@@ -214,10 +216,6 @@ async def common_query_list(
     :param model:SQLALCHEMY模型对象
     :return:
     """
-    # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
-    total_stmt = select(func.count(model.id))
-    list_stmt = select(model)
-
     # 2. 定义允许的筛选字段白名单，防止非法字段注入
     mapper = inspect(model)
     allow_filter_keys = [key for key, value in mapper.columns.items()]

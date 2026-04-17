@@ -28,14 +28,21 @@ class UploadImages(UploadBase):
 
     # --- 反向映射关系 ---
     # 一个图片对应一个用户
-    user: Mapped["User"] = relationship("User", back_populates="upload_images", foreign_keys=[user_id])
+    user: Mapped["User"] = relationship("User", back_populates="upload_images", foreign_keys=[user_id], lazy="joined")
     # 一个图片对应一个todo日志
-    todo_log: Mapped["TodoLog"] = relationship("TodoLog", back_populates="upload_images", foreign_keys=[todo_log_id])
+    todo_log: Mapped["TodoLog"] = relationship("TodoLog", back_populates="upload_images", foreign_keys=[todo_log_id],
+                                               lazy="joined")
     # 一个图片对应一个todo
-    todo: Mapped["Todo"] = relationship("Todo", back_populates="upload_images", foreign_keys=[todo_id])
+    todo: Mapped["Todo"] = relationship("Todo", back_populates="upload_images", foreign_keys=[todo_id], lazy="joined")
     # 一个图片对应一个okr
-    okr: Mapped["Okr"] = relationship("Okr", back_populates="upload_images", foreign_keys=[todo_id])
+    okr: Mapped["Okr"] = relationship("Okr", back_populates="upload_images", foreign_keys=[okr_id], lazy="joined")
     # 一个图片对应一个项目
-    program: Mapped["Program"] = relationship("Program", back_populates="upload_images", foreign_keys=[program_id])
+    program: Mapped["Program"] = relationship("Program", back_populates="upload_images", foreign_keys=[program_id],
+                                              lazy="joined")
     # 一个图片对应一个目标
-    goal: Mapped["Goal"] = relationship("Goal", back_populates="upload_images", foreign_keys=[goal_id])
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="upload_images", foreign_keys=[goal_id], lazy="joined")
+
+    # ----------- 标签映射方法 -----------
+    @property
+    def create_time_str(self):
+        return self.create_time.strftime("%Y-%m-%d %H:%M:%S")

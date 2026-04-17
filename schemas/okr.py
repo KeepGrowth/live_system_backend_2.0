@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 from models.okr import Okr
+from schemas.todo.todo import TodoItemResponse
+from schemas.upload_images import UploadImagesResponse
 
 
 # 新增OKR[请求]数据校验模型
@@ -32,6 +34,8 @@ class OkrQueryParams(OkrAddRequest):
 # 单个信息响应数据校验模型
 class OkrItemResponse(OkrAddRequest):
     id: int = Field(None, description="OKR id", alias="id")
+    todos: Optional[list[TodoItemResponse]] = Field(None, description="OKR关联的待办事项列表", alias="todoList")
+    upload_images: Optional[list[UploadImagesResponse]] = Field(None, description="OKR图片列表", alias="imageUrls")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
 
