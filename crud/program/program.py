@@ -5,7 +5,10 @@ from sqlalchemy.orm import selectinload
 from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, inspect, and_
+
+from models.okr import Okr
 from models.program import Program, ProgramLog
+from models.todo.todo import Todo
 from utils import security, sql
 from utils.sql import build_filter_conditions
 
@@ -34,7 +37,9 @@ async def get_program_list(
     :return:
     """
     list_stmt = select(Program).options(
-        selectinload(Program.okrs),
+        selectinload(Program.program_log),
+        selectinload(Program.okrs).selectinload(Okr.todos).selectinload(Todo.upload_images),
+        selectinload(Program.okrs).selectinload(Okr.todos).selectinload(Todo.todo_logs),
         selectinload(Program.upload_images)
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）

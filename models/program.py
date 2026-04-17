@@ -50,15 +50,15 @@ class Program(ProgramBase):
     # --- 反向映射关系 ---
     # 一对一关系
     # 关联用户
-    user: Mapped["User"] = relationship("User", back_populates="programs", foreign_keys=[user_id], lazy="joined")
+    user: Mapped["User"] = relationship("User", back_populates="programs", foreign_keys=[user_id])
     # 关联目标
-    goal: Mapped["Goal"] = relationship("Goal", back_populates="programs", foreign_keys=[goal_id], lazy="joined")
+    goal: Mapped["Goal"] = relationship("Goal", back_populates="programs", foreign_keys=[goal_id])
     # 关联完成日志
-    program_log: Mapped["ProgramLog"] = relationship("ProgramLog", back_populates="program", lazy="joined")
+    program_log: Mapped["ProgramLog"] = relationship("ProgramLog", back_populates="program")
 
     # 一对多关系
     # 关联图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="program", lazy="joined")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="program")
     # 关联okr
     okrs: Mapped[List["Okr"]] = relationship("Okr", back_populates="program")
     # 关联todo
@@ -91,6 +91,6 @@ class ProgramLog(ProgramBase):
     # 一对一关系
     # 关联项目
     program: Mapped["Program"] = relationship("Program", back_populates="program_log", foreign_keys=[program_id],
-                                              lazy="joined")
+                                              lazy="selectin")
     # 关联用户
-    user: Mapped["User"] = relationship("User", back_populates="program_log", lazy="joined")
+    user: Mapped["User"] = relationship("User", back_populates="program_log")

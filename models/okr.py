@@ -43,11 +43,11 @@ class Okr(OkrBase):
 
     # 一对多关系
     # 一个OKR对应多个todo
-    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="okr", lazy="joined")
+    todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="okr", lazy="selectin")
     # 一个OKR对应多个todo_log
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="okr", lazy="joined")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="okr")
     # 一个OKR对应多张图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="okr", lazy="joined")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="okr")
 
     # ------------------------ 标签状态映射 -------------------------
     @property

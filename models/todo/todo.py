@@ -39,7 +39,8 @@ class Todo(TodoBase):
                                                    comment="外键关联-目标id")
     program_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('program.id'), nullable=True,
                                                       comment="外键关联-项目id")
-    okr_id = mapped_column(Integer, ForeignKey('okr.id'), nullable=True, comment="外键关联-OKR id")
+    okr_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('okr.id'), nullable=True,
+                                                  comment="外键关联-OKR id")
 
     # --- 反向映射关系 ---
     # 一个todo对应一个用户
@@ -51,9 +52,9 @@ class Todo(TodoBase):
     # 一个todo对应一个目标
     goal: Mapped["Goal"] = relationship("Goal", back_populates="todos", foreign_keys=[goal_id])
     # 一个todo对应多个todo日志
-    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo",lazy="joined")
+    todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo")
     # 一个todo对应多个图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo",lazy="joined")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo")
 
     # -------------------- 标签映射方法 --------------------
     @property

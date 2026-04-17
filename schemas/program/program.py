@@ -1,19 +1,8 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
-
-from models.goal.goal import Goal
-from models.okr import Okr
-from models.program import Program, ProgramLog
-from models.todo.todo import Todo
-from models.todo.todo_log import TodoLog
-from models.upload_images import UploadImages
-from models.users import User
-from schemas.goal.goal import GoalDetailResponse
 from schemas.okr import OkrItemResponse
 from schemas.program.program_log import ProgramLogItemResponse
-from schemas.todo.todo import TodoItemResponse
-from schemas.todo.todo_log import TodoLogItemResponse
 from schemas.upload_images import UploadImagesResponse
 from schemas.users import SafeUserResponse
 
@@ -61,9 +50,6 @@ class ProgramItemResponse(ProgramAddRequest):
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
     # 关联信息
-    # 一对一信息
-    user: Optional[SafeUserResponse] = Field(None, description="项目创建者", alias="user")
-    goal: Optional[GoalDetailResponse] = Field(None, description="项目目标", alias="goal")
     program_log: Optional[ProgramLogItemResponse] = Field(None, description="项目日志", alias="programLog")
     # 一对多信息
     okrs: Optional[list[OkrItemResponse]] = Field(None, description="项目OKR列表", alias="okrList")

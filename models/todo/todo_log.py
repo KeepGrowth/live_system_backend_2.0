@@ -46,4 +46,4 @@ class TodoLog(TodoLogBase):
     # 一个todo_log对应一个用户
     user: Mapped["User"] = relationship("User", back_populates="todo_logs", foreign_keys=[user_id])
     # 一个todo_log拥有多张图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo_log", )
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo_log")

@@ -32,7 +32,7 @@ async def add_goal(
 
 @router.get('/list')
 async def get_goal_list(
-        goal_query_params: GoalQueryParams,
+        goal_query_params: GoalQueryParams = Query(...),
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):

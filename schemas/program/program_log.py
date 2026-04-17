@@ -1,15 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
-
-from models.goal.goal import Goal
-from models.okr import Okr
-from models.program import Program, ProgramLog
-from models.todo.todo import Todo
-from models.todo.todo_log import TodoLog
-from models.upload_images import UploadImages
-from models.users import User
-from schemas.goal.goal import GoalDetailResponse
 from schemas.upload_images import UploadImagesResponse
 from schemas.users import SafeUserResponse
 
