@@ -78,3 +78,25 @@ async def update_todo_log(
     result = await todo_log.update_todo_log(update_log_info.model_dump(exclude_none=True, exclude_unset=True), db)
     updated_todo_log = TodoLogItemResponse().model_validate(result)
     return Result.success(data=updated_todo_log)
+
+
+# 通过todo获取log数据
+@router.get('/list_by_todo')
+async def get_todo_log_list_by_todo(
+        todo_id: int = Query(..., alias="todoId"),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    通过todo获取log数据
+    :param todo_id:
+    :param db:
+    :param current_user_id:
+    :return:
+    """
+    total, result = await todo_log.query_todo_log_list(db, filter_data={
+        "todo_id": todo_id
+    })
+    todo_log_list = [TodoLogItemResponse().model_validate(r) for r in result]
+    res_data = TodoLogListResponse(todo_log_list=todo_log_list, total=total)
+    return Result.success(data=res_data)

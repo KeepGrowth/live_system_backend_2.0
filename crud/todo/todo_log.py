@@ -145,15 +145,15 @@ async def query_todo_log_list(
 async def get_todo_log_by_id(todo_log_id: int, db: AsyncSession):
     stmt = select(TodoLog).where(TodoLog.id == todo_log_id)
     todo_log = await db.execute(stmt)
-    todo_log = todo_log.scalar_one_or_none()
+    return todo_log.scalar_one_or_none()
 
 
 # 删除
 async def delete_todo_log(todo_log_id: int, db: AsyncSession):
-    todo = await get_todo_log_by_id(todo_log_id, db)
-    if not todo:
+    todo_log = await get_todo_log_by_id(todo_log_id, db)
+    if not todo_log:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该TodoLog')
-    await db.delete(todo)
+    await db.delete(todo_log)
     await db.commit()
     return True
 
