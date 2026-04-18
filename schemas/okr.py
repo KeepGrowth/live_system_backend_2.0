@@ -8,6 +8,7 @@ from schemas.upload_images import UploadImagesResponse
 # 新增OKR[请求]数据校验模型
 class OkrAddRequest(BaseModel):
     user_id: Optional[int] = Field(None, description="用户id", alias="userId")
+    goal_id: Optional[int] = Field(None, description="目标id", alias="goalId")
     program_id: Optional[int] = Field(None, description="项目id", alias="programId")
     status: Optional[int] = Field(None, description="状态：0待完成，1已完成，2已放弃", alias="status")
     kr_name: Optional[str] = Field(None, description="KR名称", alias="krName")
@@ -34,8 +35,8 @@ class OkrQueryParams(OkrAddRequest):
 class OkrItemResponse(OkrAddRequest):
     id: int = Field(None, description="OKR id", alias="id")
     todos: Optional[list[TodoItemResponse]] = Field(None, description="OKR关联的待办事项列表", alias="todoList")
-    create_time: datetime = Field(None, description="创建时间", alias="createTime")
-    update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+    create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
+    update_time_str: Optional[str] = Field(None, description="更新时间", alias="updateTimeStr")
 
 
 # OKR列表响应数据校验模型

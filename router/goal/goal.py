@@ -95,6 +95,6 @@ async def get_goal_multi_options(
     根据用户ID，获取所有年份的所有目标，更改数据格式为级联选项格式。
     """
     total, result = await goal.query_goal_list(db, query_params={"user_id": current_user_id})
-    goal_list = [GoalDetailResponse().model_validate(r) for r in result]
+    goal_list = [r.__dict__ for r in result]
     result = convert_to_year_goal_options(goal_list)
     return Result.success(data=result)

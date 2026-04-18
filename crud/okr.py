@@ -69,7 +69,14 @@ async def update_okr(
     target_okr = await get_okr_by_id(db, update_data.get('id'))
     if not target_okr:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该OKR')
-    return await sql.update_by_id(db, okr.Okr, update_data.get('id'), update_data)
+    # 3. 更新对象的属性
+    # 遍历 update_data 中的键值对，排除掉 id (通常主键不更新)
+    for key, value in update_data.items():
+        if key != 'id' and hasattr(target_okr, key):
+            setattr(target_okr, key, value)
+    await db.commit()
+    await db.refresh(target_okr)
+    return target_okr
 
 
 # 删除

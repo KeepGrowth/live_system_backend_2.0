@@ -27,8 +27,7 @@ async def add_program(
 ):
     add_program_info.user_id = current_user_id
     new_program = await program.add_program(add_program_info.model_dump(exclude_none=True, exclude_unset=True), db)
-    res_data = ProgramItemResponse().model_validate(new_program)
-    return Result.success(data=res_data)
+    return Result.success()
 
 
 # 条件查询分页列表
@@ -90,13 +89,16 @@ async def delete_program(
     """
     根据项目id删除项目
     """
-    target_program = await program.get_program_by_id(db=db, program_id=program_id)
-    if target_program.user_id != current_user_id:
-        return Result.error(msg="无权限删除项目", code=status.HTTP_403_FORBIDDEN)
-    deleted_program_count = await program.delete_program(db=db, program_id=program_id)
-    if deleted_program_count == 0:
-        return Result.error(msg="项目不存在", code=404)
-    return Result.success()
+    try:
+        target_program = await program.get_program_by_id(db=db, program_id=program_id)
+        if target_program.user_id != current_user_id:
+            return Result.error(msg="无权限删除项目", code=status.HTTP_403_FORBIDDEN)
+        deleted_program_count = await program.delete_program(db=db, program_id=program_id)
+        if deleted_program_count == 0:
+            return Result.error(msg="项目不存在", code=404)
+        return Result.success()
+    except Exception as e:
+        return Result.error(msg="删除项目失败,该项目含有其他关联数据，请先删除关联数据", code=500)
 
 
 # 更新项目信息
@@ -117,8 +119,7 @@ async def update_program(
                                                    update_data=update_program_info.model_dump(
                                                        exclude_none=True,
                                                        exclude_unset=True))
-    res_data = ProgramItemResponse().model_validate(updated_program)
-    return Result.success(data=res_data)
+    return Result.success()
 
 
 # 获取项目级联选项
@@ -131,6 +132,6 @@ async def get_program_multi_options(
     根据用户ID，获取所有年份的所有项目，更改数据格式为级联选项格式。
     """
     total, result = await program.get_program_list(db, query_params={"user_id": current_user_id})
-    program_list = [ProgramItemResponse().model_validate(item) for item in result]
+    program_list = [item.__dict__ for item in result]
     result = convert_to_year_program_options(program_list)
     return Result.success(data=result)

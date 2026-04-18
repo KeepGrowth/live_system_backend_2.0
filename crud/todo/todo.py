@@ -72,7 +72,7 @@ async def add_todo(
 # 条件查询列表-分页
 async def query_todo_list(
         db: AsyncSession,
-        filter_data: dict,
+        query_params: dict,
 ):
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Todo.id))
@@ -80,11 +80,16 @@ async def query_todo_list(
         selectinload(Todo.todo_logs),
         selectinload(Todo.upload_images)
     )
-    date_field_map = {
-        "start_date": "deadline",
-        "end_date": "deadline"
-    }
-    return await sql.common_query_list(db, filter_data, total_stmt, list_stmt, Todo, date_field_map)
+    # 比较年份
+    if query_params.get('start_date', None):
+        total_stmt = total_stmt.where(Todo.deadline >= query_params.get('start_date'))
+        list_stmt = list_stmt.where(Todo.deadline >= query_params.get('start_date'))
+        query_params.pop('start_date')
+    if query_params.get('end_date', None):
+        total_stmt = total_stmt.where(Todo.deadline <= query_params.get('end_date'))
+        list_stmt = list_stmt.where(Todo.deadline <= query_params.get('end_date'))
+        query_params.pop('end_date')
+    return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Todo)
 
 
 # 根据id查询todo

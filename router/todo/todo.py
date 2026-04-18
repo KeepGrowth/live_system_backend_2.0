@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
 from crud.todo import todo
 from crud.todo.todo import get_todo_by_id
+from crud.okr import get_okr_by_id
 from models.todo.todo import Todo
 from models.users import User
 from schemas.todo.todo import *
@@ -31,7 +32,7 @@ async def add_todo(
 # 获取todo详情
 @router.get('/detail')
 async def get_todo_detail(
-        todo_id: int = Query(...,alias='todoId'),
+        todo_id: int = Query(..., alias='todoId'),
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
@@ -55,8 +56,8 @@ async def get_todo_list(
 ):
     filter_data.user_id = current_user_id
     total, result = await todo.query_todo_list(db=db,
-                                               filter_data=filter_data.model_dump(exclude_none=True,
-                                                                                  exclude_unset=True))
+                                               query_params=filter_data.model_dump(exclude_none=True,
+                                                                                   exclude_unset=True))
     todo_list = [TodoItemResponse().model_validate(r) for r in result]
     res_data = TodoListResponse(todo_list=todo_list, total=total)
     return Result.success(data=res_data)
@@ -69,6 +70,10 @@ async def update_todo(
         current_user_id: int = Depends(get_current_user)
 ):
     update_data.user_id = current_user_id
+    if update_data.okr_id:
+        okr = await get_okr_by_id(db, update_data.okr_id)
+        update_data.program_id = okr.program_id
+        update_data.goal_id = okr.goal_id
     result = await todo.update_todo(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
