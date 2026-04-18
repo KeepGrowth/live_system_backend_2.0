@@ -12,18 +12,18 @@ from utils.security import verify_password
 
 
 # 新增
-async def add_image(db: AsyncSession, user_id: int, image_url: str):
+async def add_image(db: AsyncSession, image_params: dict, image_url: str):
     """
     新增图片记录
     :param db:
-    :param user_id:
     :param image_url:
     :return:
     """
-    user = await get_user_by_id(db, user_id)
-    if not user_id:
+    user = await get_user_by_id(db, image_params['user_id'])
+    if not user.id:
         return None
-    new_image = UploadImages(user_id=user.id, image_url=image_url)
+    new_image = UploadImages(**image_params,
+                             image_url=image_url)
     db.add(new_image)
     await db.commit()
     await db.refresh(new_image)

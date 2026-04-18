@@ -58,11 +58,11 @@ def build_filter_conditions(
 
 
 # 新增
-async def add_todo_log(add_data: dict, db: AsyncSession, user_id: int):
-    new_todo_log = TodoLog(**add_data, user_id=user_id)
+async def add_todo_log(add_data: dict, db: AsyncSession):
+    new_todo_log = TodoLog(**add_data)
     db.add(new_todo_log)
     await db.commit()
-    await db.refresh(TodoLog)
+    await db.refresh(new_todo_log)
     return new_todo_log
 
 

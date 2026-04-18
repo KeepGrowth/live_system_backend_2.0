@@ -8,6 +8,7 @@ from models.users import User
 from schemas.todo.todo_log import *
 from utils.auth import get_current_user
 from utils.response import Result
+from crud.todo.todo import *
 
 router = APIRouter(
     prefix='/api/todo_log',
@@ -23,8 +24,13 @@ async def add_todo_log(
         current_user_id: int = Depends(get_current_user)
 ):
     todo_log_info.user_id = current_user_id
-    result = await todo_log.add_todo_log(todo_log_info.model_dump(exclude_none=True, exclude_unset=True), db,
-                                         current_user_id)
+    todo = await get_todo_by_id(todo_log_info.todo_id, db)
+    if todo:
+        todo_log_info.okr_id = todo.okr_id
+        todo_log_info.program_id = todo.program_id
+        todo_log_info.goal_id = todo.goal_id
+
+    result = await todo_log.add_todo_log(todo_log_info.model_dump(exclude_none=True, exclude_unset=True), db)
     new_todo_log = TodoLogItemResponse().model_validate(result)
     return Result.success(msg='新增TodoLog成功', data=new_todo_log)
 

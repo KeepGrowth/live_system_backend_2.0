@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from fastapi import HTTPException, File, UploadFile
+from fastapi import HTTPException, File, UploadFile, Form
 from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from crud import okr
 from crud.upload import add_image
 from models.users import User
 from schemas.okr import *
+from schemas.upload_images import ImageUploadParams
 from setting import UPLOAD_DIR, BASE_URL, ALLOWED_EXTENSIONS
 from utils.auth import get_current_user
 from utils.response import Result
@@ -26,9 +27,10 @@ router = APIRouter(
 # 图片上传（头像更改、日志图片等文件上传）
 @router.post("/image")
 async def upload_image(
+        params: ImageUploadParams = Depends(),
         db: AsyncSession = Depends(get_database),
         file: UploadFile = File(...),
-        current_user: int = Depends(get_current_user)
+        current_user: int = Depends(get_current_user),
 ):
     # 1. 校验文件类型
     if file.content_type not in ALLOWED_EXTENSIONS:
@@ -52,7 +54,9 @@ async def upload_image(
 
     # 5. 构建返回给前端的 URL
     file_url = f"{BASE_URL}/{file_path}"
-    await add_image(db, user_id=current_user, image_url=file_url)
+    params.user_id = current_user
+    print('22222', params.to_non_empty_dict())
+    await add_image(db, image_params=params.to_non_empty_dict(), image_url=file_url)
 
     return Result.success(msg="上传成功", data={
         "url": file_url,
