@@ -45,7 +45,6 @@ def build_filter_conditions(
         else:
             model_field = getattr(model, key)
             filter_conditions.append(model_field == value)
-        print('筛选出来的字段', filter_conditions)
     return filter_conditions
 
 
@@ -202,7 +201,6 @@ async def common_query_list(
         total_stmt,
         list_stmt,
         model: Type[DeclarativeBase],
-        date_field_map=None,
 ):
     """
     分页条件查询模型数据列表
@@ -239,8 +237,13 @@ async def common_query_list(
     # 提取筛选条件
     query_params.pop('page', None)
     query_params.pop('page_size', None)
-    filter_conditions = build_filter_conditions(model, query_params, date_field_map)
-    print('筛选条件', filter_conditions)
+    filter_conditions = []
+    # 遍历筛选条件，只处理白名单内的字段
+    for key in query_params.keys():
+        value = query_params[key]
+
+        model_field = getattr(model, key)
+        filter_conditions.append(model_field == value)
     # 4. 如果有筛选条件，添加到查询语句中
     if filter_conditions:
         total_stmt = total_stmt.where(and_(*filter_conditions))

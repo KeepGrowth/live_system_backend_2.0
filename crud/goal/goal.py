@@ -48,10 +48,23 @@ async def query_goal_list(
         selectinload(Goal.programs).selectinload(Program.okrs).
         selectinload(Okr.todos).selectinload(Todo.todo_logs),
         selectinload(Goal.upload_images),
+        selectinload(Goal.goal_category),
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Goal.id))
-    return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Goal)
+
+    # 比较年份
+    if query_params.get('start_year', None):
+        total_stmt = total_stmt.where(Goal.start_date >= datetime.date(query_params.get('start_year'), 1, 1))
+        list_stmt = list_stmt.where(Goal.start_date >= datetime.date(query_params.get('start_year'), 1, 1))
+        query_params.pop('start_year')
+    if query_params.get('end_year', None):
+        total_stmt = total_stmt.where(Goal.start_date <= datetime.date(query_params.get('end_year'), 12, 31))
+        list_stmt = list_stmt.where(Goal.start_date <= datetime.date(query_params.get('end_year'), 12, 31))
+        query_params.pop('end_year')
+
+    total, goal_list = await sql.common_query_list(db, query_params, total_stmt, list_stmt, Goal)
+    return total, goal_list
 
 
 # 更新

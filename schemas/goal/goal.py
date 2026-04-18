@@ -2,6 +2,7 @@ from typing import Optional
 from datetime import date, datetime
 from pydantic import BaseModel, Field, ConfigDict
 
+from schemas.goal.goal_cate import GoalCategoryDetailResponse
 from schemas.program.program import ProgramItemResponse
 from schemas.upload_images import UploadImagesResponse
 
@@ -35,15 +36,25 @@ class GoalUpdateRequest(GoalAddRequest):
 
 
 # 条件查询参数
-class GoalQueryParams(GoalUpdateRequest):
+class GoalQueryParams(BaseModel):
+    user_id: Optional[int] = Field(None, description="用户id", alias="userId")
+    start_year: Optional[int] = Field(None, description="开始时间", alias="startYear")
+    end_year: Optional[int] = Field(None, description="结束时间", alias="endYear")
     page: Optional[int] = Field(None, description="页码", alias="page")
     page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
+
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )
 
 
 # 单个目标信息返回数据模型
 class GoalDetailResponse(GoalAddRequest):
     id: int = Field(None, description="目标id", alias="id")
     programs: list[ProgramItemResponse] = Field(None, description="目标计划列表", alias="programList")
+    goal_status_label: Optional[str] = Field(None, description="目标状态标签", alias="goalStatusLabel")
+    goal_category: Optional[GoalCategoryDetailResponse] = Field(None, description="目标分类名称", alias="goalCategory")
     upload_images: list[UploadImagesResponse] = Field(None, description="目标图片列表", alias="imageUrls")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容

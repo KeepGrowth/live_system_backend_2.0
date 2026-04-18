@@ -44,6 +44,7 @@ async def get_goal_list(
     :return:
     """
     goal_query_params.user_id = current_user_id
+    print("查询参数", goal_query_params)
     total, goal_list = await goal.query_goal_list(db,
                                                   goal_query_params.model_dump(exclude_none=True, exclude_unset=True))
     goal_list = [GoalDetailResponse().model_validate(r) for r in goal_list]
@@ -80,10 +81,8 @@ async def update_goal(
     # 执行更新
     goal_data.user_id = current_user_id
     result = await goal.update_goal(db=db,
-                                    goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True)
-                                    )
-    updated_goal = GoalDetailResponse.model_validate(result)
-    return Result.success(data=updated_goal)
+                                    goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True))
+    return Result.success()
 
 
 # 获取目标级联选项
