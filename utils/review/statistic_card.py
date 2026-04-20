@@ -46,6 +46,8 @@ class AccumulateStatisticCard:
 
 
 
+
+
 # --- 测试示例 ---
 
 # 构造模拟数据

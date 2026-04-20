@@ -9,6 +9,7 @@ class TodoLogAddRequest(BaseModel):
     todo_id: int = Field(None, description="todo id", alias="todoId")
     goal_id: Optional[int] = Field(None, description="goal id", alias="goalId")
     program_id: Optional[int] = Field(None, description="program id", alias="programId")
+    focus_time: Optional[int] = Field(None, description="专注时长", alias="focusTime")
     okr_id: Optional[int] = Field(None, description="okr id", alias="okrId")
     title: str = Field(None, description="todo log title", alias="title")
     score: Optional[int] = Field(None, description="todo log score", alias="score")

@@ -1,6 +1,6 @@
 import datetime
 from fastapi import HTTPException
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
@@ -94,4 +94,12 @@ async def get_total_list(db: AsyncSession,
     :param user_id:
     :return:
     """
-    return await sql.get_total_list(db, user_id, Goal)
+    stmt = (
+        select(Goal)
+        .where(Goal.user_id == user_id)
+        .options(joinedload(Goal.goal_category))
+    )
+
+    result = await db.execute(stmt)
+    return result.scalars().all()
+

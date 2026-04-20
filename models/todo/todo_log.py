@@ -28,6 +28,7 @@ class TodoLog(TodoLogBase):
                                                       comment="外键关联-项目id")
     okr_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('okr.id'), nullable=True,
                                                   comment="外键关联-OKR id")
+    focus_time: Mapped[int] = mapped_column(Integer, nullable=True, comment="专注时长-单位分钟")
 
     title: Mapped[str] = mapped_column(String(50), nullable=False, comment="todo日志标题")
     score: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="满意度评分-满分5分")

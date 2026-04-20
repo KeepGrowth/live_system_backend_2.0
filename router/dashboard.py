@@ -124,7 +124,7 @@ async def get_statistic_card(
         {
             'title': '累计记录的精彩瞬间',
             'subtitle': '',
-            'value': int(upload_image_list['id'].count()),
+            'value': int(upload_image_list['id'].count()) or 0,
             'targetValue': int(upload_image_list['id'].count()),
             'unit': '次',
             'delta': '',
