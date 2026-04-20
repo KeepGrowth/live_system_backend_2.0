@@ -262,3 +262,20 @@ async def common_query_list(
     model_instance_list = list_result.scalars().all() or []
     # 7. 返回结果
     return total, model_instance_list
+
+
+# 获取某用户拥有的实体记录总数
+async def get_total_list(db: AsyncSession,
+                         user_id: int,
+                         model: Type[DeclarativeBase]
+                         ):
+    """
+    获取某用户的某实体所有记录
+    :param db:
+    :param model:
+    :param user_id:
+    :return:
+    """
+    stmt = select(model).where(model.user_id == user_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()

@@ -139,3 +139,15 @@ async def delete_todo(
     await db.execute(stmt)
     await db.commit()
     return True
+
+
+# 获取综述
+async def get_total_list(db: AsyncSession,
+                         user_id: int):
+    """
+    获取某用户的Todo总数
+    :param db:
+    :param user_id:
+    :return:
+    """
+    return await sql.get_total_list(db, user_id, Todo)

@@ -161,3 +161,15 @@ async def delete_todo_log(todo_log_id: int, db: AsyncSession):
 # 更新
 async def update_todo_log(update_data: dict, db: AsyncSession):
     return await sql.update_by_id(db=db, model=TodoLog, update_data=update_data, item_id=update_data['id'])
+
+
+# 获取总数
+async def get_total_list(db: AsyncSession,
+                         user_id: int):
+    """
+    获取某用户的日志总数
+    :param db:
+    :param user_id:
+    :return:
+    """
+    return await sql.get_total_list(db, user_id, TodoLog)

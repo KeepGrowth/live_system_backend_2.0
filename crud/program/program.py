@@ -87,3 +87,15 @@ async def delete_program(
     if not db_program:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="项目不存在")
     return await sql.delete_by_id(db, Program, program_id)
+
+
+# 获取综述
+async def get_total_list(db: AsyncSession,
+                         user_id: int):
+    """
+    获取某用户的项目总数
+    :param db:
+    :param user_id:
+    :return:
+    """
+    return await sql.get_total_list(db, user_id, Program)

@@ -85,3 +85,15 @@ async def delete_okr(
         db: AsyncSession,
 ):
     return await sql.delete_by_id(db, okr.Okr, okr_id)
+
+
+# 获取总数
+async def get_total_list(db: AsyncSession,
+                         user_id: int):
+    """
+    获取某用户的OKR总数
+    :param db:
+    :param user_id:
+    :return:
+    """
+    return await sql.get_total_list(db, user_id, Okr)

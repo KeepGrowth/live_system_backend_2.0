@@ -83,3 +83,15 @@ async def delete_goal(
 ):
     rowcount = await sql.delete_by_id(db, Goal, goal_id)
     return rowcount
+
+
+# 获取总数
+async def get_total_list(db: AsyncSession,
+                         user_id: int):
+    """
+    获取某用户的目标总数
+    :param db:
+    :param user_id:
+    :return:
+    """
+    return await sql.get_total_list(db, user_id, Goal)
