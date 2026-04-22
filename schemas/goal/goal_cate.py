@@ -27,24 +27,18 @@ class GoalCategoryQueryParams(GoalCategoryAddRequest):
 
 
 # 单个目标分类信息返回数据模型
-class GoalCategoryDetailResponse(GoalCategoryAddRequest):
+class GoalCategoryItemResponse(GoalCategoryAddRequest):
     id: int = Field(None, description="目标分类id", alias="id")
-    create_time: datetime = Field(None, description="创建时间", alias="createTime")  # 前端用驼峰，alias改驼峰
-    update_time: datetime = Field(None, description="更新时间", alias="updateTime")  # 统一驼峰alias
-
-    model_config = ConfigDict(
-        populate_by_name=True,
-        from_attributes=True,
-    )
+    create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
+    update_time_str: Optional[str] = Field(None, description="更新时间", alias="updateTimeStr")
 
 
-# 目标分类列表返回数据模型（核心修复：解决ValidationError）
+# 目标分类列表返回数据模型
 class GoalCategoryListResponse(BaseModel):
     total: int = Field(..., description="目标分类总数", alias="total")
-    goal_category_list: List[GoalCategoryDetailResponse] = Field(...,
-                                                                 description="目标分类列表",
-                                                                 alias="goalCategoryList")  # 驼峰alias
-    has_more: bool = Field(..., description="是否有更多", alias="hasMore")  # 驼峰alias
+    goal_category_list: List[GoalCategoryItemResponse] = Field(...,
+                                                               description="目标分类列表",
+                                                               alias="goalCategoryList")  # 驼峰alias
 
     model_config = ConfigDict(
         populate_by_name=True,  # 关键：兼容下划线字段名和驼峰alias

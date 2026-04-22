@@ -34,7 +34,14 @@ async def get_goal_by_id(
     :param db:
     :return:
     """
-    return await sql.get_by_id(db, Goal, goal_id)
+    stmt = ((select(Goal).options(
+        selectinload(Goal.user),
+        selectinload(Goal.upload_images),
+        selectinload(Goal.goal_category),
+    ))
+            .where(Goal.id == goal_id))
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
 
 
 # 获取列表
@@ -43,10 +50,7 @@ async def query_goal_list(
         query_params: dict = None,
 ):
     list_stmt = select(Goal).options(
-        selectinload(Goal.programs).selectinload(Program.program_log),
-        selectinload(Goal.programs).selectinload(Program.upload_images),
-        selectinload(Goal.programs).selectinload(Program.okrs).
-        selectinload(Okr.todos).selectinload(Todo.todo_logs),
+        selectinload(Goal.user),
         selectinload(Goal.upload_images),
         selectinload(Goal.goal_category),
     )
@@ -102,4 +106,3 @@ async def get_total_list(db: AsyncSession,
 
     result = await db.execute(stmt)
     return result.scalars().all()
-

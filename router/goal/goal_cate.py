@@ -25,7 +25,7 @@ async def add_goal_category(
     result = await goal_cate.add_goal_category(db=db,
                                                goal_category_data=goal_cate_data.model_dump(exclude_none=True,
                                                                                             exclude_unset=True))
-    new_goal_cate = GoalCategoryDetailResponse.model_validate(result)
+    new_goal_cate = GoalCategoryItemResponse.model_validate(result)
     return Result.success(data=new_goal_cate)
 
 
@@ -47,7 +47,7 @@ async def get_goal_cate_list(
                                                                      goal_cate_query_params.model_dump(
                                                                          exclude_none=True,
                                                                          exclude_unset=True))
-    goal_cate_list = [GoalCategoryDetailResponse().model_validate(r) for r in goal_cate_list]
+    goal_cate_list = [GoalCategoryItemResponse().model_validate(r) for r in goal_cate_list]
     res_data = GoalCategoryListResponse(goal_cate_list=goal_cate_list, total=total,
                                         has_more=total > len(goal_cate_list))
     return Result.success(data=res_data)
@@ -74,5 +74,5 @@ async def update_goal_cate(
     goal_cate_data.user_id = current_user_id
     result = await goal_cate.update_goal_category(db=db, goal_category_data=goal_cate_data.model_dump(exclude_none=True,
                                                                                                       exclude_unset=True))
-    updated_goal_cate = GoalCategoryDetailResponse.model_validate(result)
+    updated_goal_cate = GoalCategoryItemResponse.model_validate(result)
     return Result.success(data=updated_goal_cate)

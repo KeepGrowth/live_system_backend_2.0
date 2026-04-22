@@ -38,8 +38,7 @@ async def get_program_list(
     """
     list_stmt = select(Program).options(
         selectinload(Program.program_log),
-        selectinload(Program.okrs).selectinload(Okr.todos).selectinload(Todo.upload_images),
-        selectinload(Program.okrs).selectinload(Okr.todos).selectinload(Todo.todo_logs),
+        selectinload(Program.user),
         selectinload(Program.upload_images)
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
@@ -53,8 +52,8 @@ async def get_program_by_id(
         db: AsyncSession,
 ):
     query = select(Program).options(
-        selectinload(Program.okrs).selectinload(Okr.todos).selectinload(Todo.todo_logs),  # 预加载 okrs
         selectinload(Program.upload_images),
+        selectinload(Program.user),
         selectinload(Program.program_log),
     ).where(Program.id == program_id)
     result = await db.execute(query)

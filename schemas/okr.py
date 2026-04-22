@@ -3,6 +3,7 @@ from typing import Optional
 from datetime import date, datetime
 from schemas.todo.todo import TodoItemResponse
 from schemas.upload_images import UploadImagesResponse
+from schemas.users import SafeUserResponse
 
 
 # 新增OKR[请求]数据校验模型
@@ -31,10 +32,20 @@ class OkrQueryParams(OkrAddRequest):
     page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
 
 
+# 联表查询 单个信息响应数据校验模型
+class OkrJoinItemResponse(OkrAddRequest):
+    id: int = Field(None, description="OKR id", alias="id")
+    todos: Optional[list[TodoItemResponse]] = Field(None, description="OKR关联的待办事项列表", alias="todoList")
+    create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
+    update_time_str: Optional[str] = Field(None, description="更新时间", alias="updateTimeStr")
+    image_urls: Optional[list[UploadImagesResponse]] = Field(None, description="图片列表", alias="imageUrls")
+
+
 # 单个信息响应数据校验模型
 class OkrItemResponse(OkrAddRequest):
     id: int = Field(None, description="OKR id", alias="id")
-    todos: Optional[list[TodoItemResponse]] = Field(None, description="OKR关联的待办事项列表", alias="todoList")
+    user: Optional[SafeUserResponse] = Field(None, description="用户名称", alias="user")
+    image_urls: Optional[list[UploadImagesResponse]] = Field(None, description="图片列表", alias="imageUrls")
     create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
     update_time_str: Optional[str] = Field(None, description="更新时间", alias="updateTimeStr")
 
@@ -43,7 +54,6 @@ class OkrItemResponse(OkrAddRequest):
 class OkrListResponse(BaseModel):
     total: int = Field(None, description="OKR总数")
     okr_list: list[OkrItemResponse] = Field(None, description="OKR列表", alias="okrList")
-    has_more: bool = Field(None, description="是否有更多", alias="hasMore")
 
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容

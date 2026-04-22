@@ -3,6 +3,7 @@ from typing import Optional, Union
 from datetime import date, datetime
 from schemas.todo.todo_log import TodoLogItemResponse
 from schemas.upload_images import UploadImagesResponse
+from schemas.users import SafeUserResponse
 
 
 # 新增todo数据校验
@@ -52,8 +53,8 @@ class TodoQueryRequest(BaseModel):
     )
 
 
-# 单个信息返回数据模型
-class TodoItemResponse(TodoAddRequest):
+# 联表查询单个信息返回数据模型
+class TodoJoinItemResponse(TodoAddRequest):
     id: int = Field(None, description="todo id", alias="id")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
@@ -64,7 +65,17 @@ class TodoItemResponse(TodoAddRequest):
                                                              alias="imageList")
 
 
-# 不分页查询列表返回数据模型
+# 单个查询响应
+class TodoItemResponse(TodoAddRequest):
+    id: int = Field(None, description="todo id", alias="id")
+    user: Optional[SafeUserResponse] = Field(None, description="用户信息", alias="user")
+    create_time: datetime = Field(None, description="创建时间", alias="createTime")
+    update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+    image_urls: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
+                                                             alias="imageList")
+
+
+# 分页查询列表返回数据模型
 class TodoListResponse(BaseModel):
     total: int = Field(None, description="todo总数")
     todo_list: list[TodoItemResponse] = Field(default_factory=list, description="todo列表", alias="todoList")

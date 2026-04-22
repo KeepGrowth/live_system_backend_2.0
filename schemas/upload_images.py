@@ -17,6 +17,7 @@ class UploadImagesResponse(BaseModel):
     image_url: Optional[str] = Field(None, description="图片url", alias="imageUrl")
     create_time: Optional[datetime] = Field(None, description="创建时间", alias="createTime")
     create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
+    user: Optional[SafeUserResponse] = Field(None, description="用户信息", alias="user")
 
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
@@ -27,6 +28,7 @@ class UploadImagesResponse(BaseModel):
 # 单个数据上传
 from typing import Optional, Dict, Any
 from fastapi import Form
+
 
 class ImageUploadParams:
     def __init__(

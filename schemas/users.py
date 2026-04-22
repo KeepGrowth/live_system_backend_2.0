@@ -87,7 +87,11 @@ class SafeUserResponse(BaseModel):
 # 用户列表信息
 class UserListResponse(BaseModel):
     total: int = Field(None, alias="total")
-    user_list: List[SafeUserResponse] = Field(None, alias="users")
+    user_list: List[SafeUserResponse] = Field(None, alias="userList")
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )
 
 
 # 用户令牌信息响应

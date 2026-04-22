@@ -118,7 +118,7 @@ async def get_goal_review(
         'focus_time')
     # 返回数据
     res_data = {
-        'goalCompletion': float(goal_completion)*100,
+        'goalCompletion': float(goal_completion) * 100,
         'goalCateList': convert_counts_to_pie_data(goal_cate_list),
         'goalCompletionList': convert_counts_to_pie_data(goal_completion_list),
         'consumeTimeDistribution': consume_time_distribution_dict

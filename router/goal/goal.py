@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
 from crud.goal import goal
 from models.users import User
-from schemas.goal.goal import GoalAddRequest, GoalDetailResponse, GoalListResponse, GoalUpdateRequest, GoalQueryParams
+from schemas.goal.goal import *
 from utils.auth import get_current_user
 from utils.common import convert_to_year_goal_options
 from utils.response import Result
@@ -26,8 +26,23 @@ async def add_goal(
     goal_data.user_id = current_user_id
     result = await goal.add_goal(db=db,
                                  goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True))
-    new_goal = GoalDetailResponse.model_validate(result)
+    new_goal = GoalItemResponse.model_validate(result)
     return Result.success(data=new_goal)
+
+
+@router.get('/detail/{goal_id}')
+async def add_goal(
+        goal_id: int = Path(...),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    result = await goal.get_goal_by_id(goal_id, db)
+    if not result:
+        return Result.error(msg='目标不存在', code=404)
+    if result.user_id != current_user_id:
+        return Result.error(msg='无权限查看该目标', code=403)
+    goal_info = GoalItemResponse.model_validate(result)
+    return Result.success(data=goal_info)
 
 
 @router.get('/list')
@@ -44,11 +59,10 @@ async def get_goal_list(
     :return:
     """
     goal_query_params.user_id = current_user_id
-    print("查询参数", goal_query_params)
     total, goal_list = await goal.query_goal_list(db,
                                                   goal_query_params.model_dump(exclude_none=True, exclude_unset=True))
-    goal_list = [GoalDetailResponse().model_validate(r) for r in goal_list]
-    res_data = GoalListResponse(total=total, goal_list=goal_list, has_more=total > len(goal_list))
+    goal_list = [GoalJoinItemResponse().model_validate(r) for r in goal_list]
+    res_data = GoalListResponse(total=total, goal_list=goal_list)
     return Result.success(data=res_data)
 
 
@@ -82,7 +96,8 @@ async def update_goal(
     goal_data.user_id = current_user_id
     result = await goal.update_goal(db=db,
                                     goal_data=goal_data.model_dump(exclude_none=True, exclude_unset=True))
-    return Result.success()
+    result = GoalItemResponse.model_validate(result)
+    return Result.success(data=result)
 
 
 # 获取目标级联选项

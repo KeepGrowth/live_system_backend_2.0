@@ -23,13 +23,14 @@ class TodoLogAddRequest(BaseModel):
 
 
 class TodoLogUpdateRequest(TodoLogAddRequest):
-    id: int = Field(None, description="todo log id", alias="id")
+    id: int = Field(None, description="日志id", alias="id")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
     )
 
 
+# 查询参数
 class TodoLogQueryRequest(BaseModel):
     """
     下列参数为允许的条件参数。

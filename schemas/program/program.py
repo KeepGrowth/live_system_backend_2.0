@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
-from schemas.okr import OkrItemResponse
+from schemas.okr import OkrItemResponse, OkrJoinItemResponse
 from schemas.program.program_log import ProgramLogItemResponse
 from schemas.upload_images import UploadImagesResponse
 from schemas.users import SafeUserResponse
@@ -13,7 +13,8 @@ class ProgramAddRequest(BaseModel):
     program_name: Optional[str] = Field(None, description="项目名称", alias="programName")
     goal_id: Optional[int] = Field(None, description="目标id", alias="goalId")
     program_desc: Optional[str] = Field(None, description="项目描述|预期达成结果", alias="programDesc")
-    program_status: Optional[int] = Field(None, description="项目状态：0待完成，1进行中，2已完成,3已放弃", alias="programStatus")
+    program_status: Optional[int] = Field(None, description="项目状态：0待完成，1进行中，2已完成,3已放弃",
+                                          alias="programStatus")
     attachment_path: Optional[str] = Field(None, description="项目附件路径", alias="attachmentPath")
     satisfaction_score: int = Field(None, description="项目满意度评分-满分5分",
                                     alias="satisfactionScore")
@@ -45,7 +46,7 @@ class ProgramQueryParams(ProgramUpdateRequest):
 
 
 # 单个项目信息响应数据校验模型
-class ProgramItemResponse(ProgramAddRequest):
+class ProgramJoinItemResponse(ProgramAddRequest):
     id: Optional[int] = Field(None, description="项目id", alias="id")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
@@ -61,11 +62,24 @@ class ProgramItemResponse(ProgramAddRequest):
     )
 
 
+class ProgramItemResponse(ProgramAddRequest):
+    id: Optional[int] = Field(None, description="项目id", alias="id")
+    user: Optional[SafeUserResponse] = Field(None, description="项目创建者信息", alias="user")
+    program_log: Optional[ProgramLogItemResponse] = Field(None, description="项目日志", alias="programLog")
+    create_time: datetime = Field(None, description="创建时间", alias="createTime")
+    update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+    upload_images: Optional[list[UploadImagesResponse]] = Field(None, description="项目图片列表", alias="imageUrls")
+
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )
+
+
 # 项目列表响应数据校验模型
 class ProgramListResponse(BaseModel):
     total: int = Field(..., description="项目总数")
     program_list: list[ProgramItemResponse] = Field(None, description="项目列表", alias="programList")
-    has_more: bool = Field(..., description="是否有更多", alias="hasMore")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值

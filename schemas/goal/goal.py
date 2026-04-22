@@ -2,9 +2,10 @@ from typing import Optional
 from datetime import date, datetime
 from pydantic import BaseModel, Field, ConfigDict
 
-from schemas.goal.goal_cate import GoalCategoryDetailResponse
+from schemas.goal.goal_cate import GoalCategoryItemResponse
 from schemas.program.program import ProgramItemResponse
 from schemas.upload_images import UploadImagesResponse
+from schemas.users import SafeUserResponse
 
 
 # 新增数据校验模型
@@ -49,24 +50,30 @@ class GoalQueryParams(BaseModel):
     )
 
 
-# 单个目标信息返回数据模型
-class GoalDetailResponse(GoalAddRequest):
+# 联表查询单个目标信息返回数据模型
+class GoalJoinItemResponse(GoalAddRequest):
     id: int = Field(None, description="目标id", alias="id")
-    programs: list[ProgramItemResponse] = Field(None, description="目标计划列表", alias="programList")
+    user: Optional[SafeUserResponse] = Field(None, description="目标创建者信息", alias="user")
     goal_status_label: Optional[str] = Field(None, description="目标状态标签", alias="goalStatusLabel")
-    goal_category: Optional[GoalCategoryDetailResponse] = Field(None, description="目标分类名称", alias="goalCategory")
+    goal_category: Optional[GoalCategoryItemResponse] = Field(None, description="目标分类名称", alias="goalCategory")
     upload_images: list[UploadImagesResponse] = Field(None, description="目标图片列表", alias="imageUrls")
-    model_config = ConfigDict(
-        populate_by_name=True,  # alias 、字段名兼容
-        from_attributes=True  # 允许从ORM对象属性中取值
-    )
+
+
+# 单个目标信息返回数据模型
+class GoalItemResponse(GoalAddRequest):
+    id: int = Field(None, description="目标id", alias="id")
+    user: Optional[SafeUserResponse] = Field(None, description="目标创建者信息", alias="user")
+    goal_status_label: Optional[str] = Field(None, description="目标状态标签", alias="goalStatusLabel")
+    goal_category: Optional[GoalCategoryItemResponse] = Field(None, description="目标分类名称", alias="goalCategory")
+    upload_images: list[UploadImagesResponse] = Field(None, description="目标图片列表", alias="imageUrls")
+    create_time_str: Optional[str] = Field(None, description="目标创建时间", alias="createTimeStr")
+    update_time_str: Optional[str] = Field(None, description="目标更新时间", alias="updateTimeStr")
 
 
 # 目标列表返回数据模型
 class GoalListResponse(BaseModel):
     total: int = Field(None, description="目标总数", alias="total")
-    goal_list: list[GoalDetailResponse] = Field(None, description="目标列表", alias="goalList")
-    has_more: bool = Field(None, description="是否有更多", alias="hasMore")
+    goal_list: list[GoalJoinItemResponse] = Field(None, description="目标列表", alias="goalList")
 
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容

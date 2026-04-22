@@ -14,6 +14,7 @@ class ProgramLogItemResponse(BaseModel):
     image_urls: Optional[list[UploadImagesResponse]] = Field(None, description="项目图片列表", alias="imageUrls")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+    user: Optional[SafeUserResponse] = Field(None, description="项目创建者信息", alias="user")
 
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容

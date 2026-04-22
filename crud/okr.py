@@ -39,8 +39,8 @@ async def query_okr_list(
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Okr.id))
     list_stmt = select(Okr).options(
-        selectinload(Okr.todos),  # 预加载 todos
         selectinload(Okr.upload_images),
+        selectinload(Okr.user),
     )
     return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Okr)
 
@@ -56,7 +56,11 @@ async def get_okr_by_id(
     :param okr_id:
     :return:
     """
-    stmt = select(Okr).where(Okr.id == okr_id)
+    stmt = (select(Okr).options(
+        selectinload(Okr.upload_images),
+        selectinload(Okr.user),
+    )
+            .where(Okr.id == okr_id))
     target_okr = await db.execute(stmt)
     return target_okr.scalar_one_or_none()
 

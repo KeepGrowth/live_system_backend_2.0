@@ -27,7 +27,7 @@ async def add_program(
 ):
     add_program_info.user_id = current_user_id
     new_program = await program.add_program(add_program_info.model_dump(exclude_none=True, exclude_unset=True), db)
-    return Result.success()
+    return Result.success(data=new_program.id)
 
 
 # 条件查询分页列表
@@ -52,16 +52,14 @@ async def get_program_list(
     if len(program_list) == 0:
         return Result.success(data=[])
     res_data = ProgramListResponse(total=total,
-                                   programList=program_list,
-                                   has_more=query_params.page * query_params.page_size < total,
-                                   )
+                                   programList=program_list, )
     return Result.success(data=res_data)
 
 
 # 获取项目详情
-@router.get('/detail')
+@router.get('/detail/{program_id}')
 async def get_program_detail(
-        program_id: int = Query(..., alias="programId", description="项目id"),
+        program_id: int = Path(...),
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
@@ -73,6 +71,8 @@ async def get_program_detail(
     :return:
     """
     program_detail = await program.get_program_by_id(db=db, program_id=program_id)
+    if program_detail.user_id != current_user_id:
+        return Result.error(msg="无访问权限", code=403)
     if not program_detail:
         return Result.error(msg="项目不存在", code=404)
     res_data = ProgramItemResponse().model_validate(program_detail)

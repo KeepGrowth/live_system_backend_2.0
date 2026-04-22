@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Path
 from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,8 +25,7 @@ async def add_okr(
         current_user_id: int = Depends(get_current_user)
 ):
     result = await okr.add_okr(add_okr_info.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
-    new_okr = OkrItemResponse().model_validate(result)
-    return Result.success(msg='新增OKR成功', data=new_okr)
+    return Result.success(msg='新增OKR成功', data=result.id)
 
 
 # 条件查询
@@ -40,8 +39,24 @@ async def get_okr_list(
     total, result = await okr.query_okr_list(db, query_params=okr_query_params.model_dump(exclude_none=True,
                                                                                           exclude_unset=True))
     okr_list = [OkrItemResponse().model_validate(r) for r in result]
-    res_data = OkrListResponse(okr_list=okr_list, total=total, has_more=total > len(okr_list))
+    res_data = OkrListResponse(okr_list=okr_list, total=total)
     return Result.success(data=res_data)
+
+
+# 详情查询
+@router.get('/detail/{okr_id}')
+async def add_goal(
+        okr_id: int = Path(...),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    result = await okr.get_okr_by_id(db, okr_id)
+    if not result:
+        return Result.error(msg='OKR不存在', code=404)
+    if result.user_id != current_user_id:
+        return Result.error(msg='无权限查看该OKR', code=403)
+    goal_info = OkrItemResponse.model_validate(result)
+    return Result.success(data=goal_info)
 
 
 @router.put('/update')
@@ -52,7 +67,7 @@ async def update_okr(
 ):
     if update_data.user_id != current_user_id:
         return Result.error(msg='无权限更新该OKR', code=403)
-    print('11111',update_data)
+    print('11111', update_data)
     result = await okr.update_okr(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
     if not result:
         return Result.error(msg='更新OKR失败', code=403)

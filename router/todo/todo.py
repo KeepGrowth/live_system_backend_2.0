@@ -25,14 +25,13 @@ async def add_todo(
         current_user_id: int = Depends(get_current_user)
 ):
     result = await todo.add_todo(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
-    new_todo = TodoItemResponse().model_validate(result)
-    return Result.success(msg='新增Todo成功', data=new_todo)
+    return Result.success(msg='新增Todo成功', data=result.id)
 
 
 # 获取todo详情
-@router.get('/detail')
+@router.get('/detail/{todo_id}')
 async def get_todo_detail(
-        todo_id: int = Query(..., alias='todoId'),
+        todo_id: int = Path(...),
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
@@ -44,6 +43,10 @@ async def get_todo_detail(
     :return:
     """
     result = await todo.get_todo_by_id(todo_id, db)
+    if not result:
+        return Result.error(msg='未找到该Todo', code=404)
+    if result.user_id != current_user_id:
+        return Result.error(msg='无此权限', code=403)
     return Result.success(data=TodoItemResponse().model_validate(result))
 
 

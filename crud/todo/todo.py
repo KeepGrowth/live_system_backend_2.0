@@ -77,7 +77,7 @@ async def query_todo_list(
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Todo.id))
     list_stmt = select(Todo).options(
-        selectinload(Todo.todo_logs),
+        selectinload(Todo.user),
         selectinload(Todo.upload_images)
     )
     # 比较年份
@@ -104,8 +104,8 @@ async def get_todo_by_id(
     :return:
     """
     stmt = select(Todo).options(
-        selectinload(Todo.todo_logs),
-        selectinload(Todo.upload_images)
+        selectinload(Todo.upload_images),
+        selectinload(Todo.user),
     ).where(Todo.id == todo_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
