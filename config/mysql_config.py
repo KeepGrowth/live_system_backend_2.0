@@ -20,9 +20,9 @@ import models.program
 import models.goal.goal
 import models.users
 
-
 # 数据库配置
-ASYNC_DATABASE_URL = "mysql+aiomysql://root:mysql_bhjbrr@192.168.1.86:3306/live_system_backup"
+ASYNC_DATABASE_URL = "mysql+aiomysql://root:mysql_bhjbrr@859707243.xyz:3306/live_system_2.0"
+# ASYNC_DATABASE_URL = "mysql+aiomysql://root:mysql_bhjbrr@859707243.xyz:3306/live_system_backup"
 
 # 创建异步引擎
 async_engine = create_async_engine(

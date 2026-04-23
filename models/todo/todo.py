@@ -11,7 +11,8 @@ from datetime import date, datetime
 class TodoBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
-    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",onupdate=datetime.now, )
+    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
+                                                  onupdate=datetime.now, )
 
 
 # todo类
@@ -48,7 +49,8 @@ class Todo(TodoBase):
     # 一个todo对应一个okr
     okr: Mapped["Okr"] = relationship("Okr", back_populates="todos", foreign_keys=[okr_id], lazy="selectin")
     # 一个todo对应一个项目
-    program: Mapped["Program"] = relationship("Program", back_populates="todos", foreign_keys=[program_id], lazy="selectin")
+    program: Mapped["Program"] = relationship("Program", back_populates="todos", foreign_keys=[program_id],
+                                              lazy="selectin")
     # 一个todo对应一个目标
     goal: Mapped["Goal"] = relationship("Goal", back_populates="todos", foreign_keys=[goal_id], lazy="selectin")
     # 一个todo对应多个todo日志

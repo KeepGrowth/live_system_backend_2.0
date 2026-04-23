@@ -36,10 +36,13 @@ async def get_goal_by_id(
     """
     stmt = ((select(Goal).options(
         selectinload(Goal.user),
+        selectinload(Goal.programs).options(
+            selectinload(Program.upload_images),
+            selectinload(Program.program_log),
+        ),
         selectinload(Goal.upload_images),
         selectinload(Goal.goal_category),
-    ))
-            .where(Goal.id == goal_id))
+    )).where(Goal.id == goal_id))
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 

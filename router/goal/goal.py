@@ -41,7 +41,7 @@ async def add_goal(
         return Result.error(msg='目标不存在', code=404)
     if result.user_id != current_user_id:
         return Result.error(msg='无权限查看该目标', code=403)
-    goal_info = GoalItemResponse.model_validate(result)
+    goal_info = GoalJoinItemResponse.model_validate(result)
     return Result.success(data=goal_info)
 
 
