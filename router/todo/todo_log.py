@@ -3,6 +3,7 @@ from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
+from crud import upload
 from crud.todo import todo_log
 from models.users import User
 from schemas.todo.todo_log import *
@@ -29,9 +30,23 @@ async def add_todo_log(
         todo_log_info.okr_id = todo.okr_id
         todo_log_info.program_id = todo.program_id
         todo_log_info.goal_id = todo.goal_id
-
-    result = await todo_log.add_todo_log(todo_log_info.model_dump(exclude_none=True, exclude_unset=True), db)
-    new_todo_log = TodoLogItemResponse().model_validate(result)
+    result = await todo_log.add_todo_log(todo_log_info.model_dump(exclude_none=True, exclude_unset=True, exclude={
+        'image_list'
+    }), db)
+    # 新增成功后更新对应的图片ID绑定
+    if result and todo_log_info.image_list:
+        for item in todo_log_info.image_list:
+            if item.get('id', None) is None:
+                continue
+            await upload.update_image(db, item['id'], {
+                "image_url": item['url'],
+                "todo_log_id": result.id,
+                "todo_id": result.todo_id,
+                "okr_id": result.okr_id,
+                "program_id": result.program_id,
+                "goal_id": result.goal_id,
+            })
+    new_todo_log = TodoLogJoinItemResponse().model_validate(result)
     return Result.success(msg='新增TodoLog成功', data=new_todo_log)
 
 

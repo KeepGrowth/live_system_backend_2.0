@@ -11,7 +11,8 @@ from datetime import date, datetime
 class TodoLogBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
-    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间")
+    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
+                                                  onupdate=datetime.now, )
 
 
 # todo_log类
@@ -47,4 +48,5 @@ class TodoLog(TodoLogBase):
     # 一个todo_log对应一个用户
     user: Mapped["User"] = relationship("User", back_populates="todo_logs", foreign_keys=[user_id])
     # 一个todo_log拥有多张图片
-    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo_log")
+    upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo_log",
+                                                               lazy="selectin")

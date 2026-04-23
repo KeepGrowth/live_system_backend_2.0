@@ -15,9 +15,6 @@ from utils.security import verify_password
 async def add_image(db: AsyncSession, image_params: dict, image_url: str):
     """
     新增图片记录
-    :param db:
-    :param image_url:
-    :return:
     """
     user = await get_user_by_id(db, image_params['user_id'])
     if not user.id:
@@ -31,7 +28,6 @@ async def add_image(db: AsyncSession, image_params: dict, image_url: str):
 
 
 # 获取总数
-
 async def get_total_list(db: AsyncSession,
                          user_id: int):
     """
@@ -41,3 +37,11 @@ async def get_total_list(db: AsyncSession,
     :return:
     """
     return await sql.get_total_list(db, user_id, UploadImages)
+
+
+# 更新
+async def update_image(db: AsyncSession, image_id: int, image_params: dict):
+    """
+    更新图片记录
+    """
+    return await sql.update_by_id(db, UploadImages, image_id, image_params)

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Union
 from datetime import date, datetime
-from schemas.todo.todo_log import TodoLogItemResponse
+from schemas.todo.todo_log import TodoLogItemResponse, TodoLogJoinItemResponse
 from schemas.upload_images import UploadImagesResponse
 from schemas.users import SafeUserResponse
 
@@ -59,8 +59,9 @@ class TodoJoinItemResponse(TodoAddRequest):
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
     # 关联信息
-    todo_logs: Optional[list[TodoLogItemResponse]] = Field(default_factory=list, description="todo日志列表",
-                                                           alias="todoLogList")
+    todo_logs: Optional[list[TodoLogJoinItemResponse]] = Field(default_factory=list, description="todo日志列表",
+                                                               alias="todoLogList")
+    user: Optional[SafeUserResponse] = Field(None, description="用户信息", alias="user")
     image_urls: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
                                                              alias="imageList")
 
@@ -78,7 +79,7 @@ class TodoItemResponse(TodoAddRequest):
 # 分页查询列表返回数据模型
 class TodoListResponse(BaseModel):
     total: int = Field(None, description="todo总数")
-    todo_list: list[TodoItemResponse] = Field(default_factory=list, description="todo列表", alias="todoList")
+    todo_list: list[TodoJoinItemResponse] = Field(default_factory=list, description="todo列表", alias="todoList")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值

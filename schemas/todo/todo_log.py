@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import date, datetime
 
+from schemas.upload_images import UploadImagesResponse
+
 
 # 新增todo日志参数
 class TodoLogAddRequest(BaseModel):
@@ -15,6 +17,7 @@ class TodoLogAddRequest(BaseModel):
     score: Optional[int] = Field(None, description="todo log score", alias="score")
     log_desc: Optional[str] = Field(None, description="todo log desc", alias="logDesc")
     emotion: Optional[str] = Field(None, description="日志情绪-AI预测生成", alias="emotion")
+    image_list: Optional[list[dict]] = Field(None, description="图片列表", alias="imageList")
     attachment_path: Optional[str] = Field(None, description="todo log attachment path", alias="attachmentPath")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
@@ -46,6 +49,14 @@ class TodoLogQueryRequest(BaseModel):
 
 class TodoLogItemResponse(TodoLogAddRequest):
     id: int = Field(None, description="todo log id", alias="id")
+    create_time: datetime = Field(None, description="创建时间", alias="createTime")
+    update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+
+
+class TodoLogJoinItemResponse(TodoLogAddRequest):
+    id: int = Field(None, description="todo log id", alias="id")
+    image_urls: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
+                                                             alias="imageList")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
 

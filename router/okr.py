@@ -9,6 +9,7 @@ from schemas.okr import *
 from utils.auth import get_current_user
 from utils.common import convert_to_year_okr_options
 from utils.response import Result
+from crud.program import program
 
 # 创建api-router实例
 router = APIRouter(
@@ -24,6 +25,10 @@ async def add_okr(
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
+    if add_okr_info.program_id:
+        program_info = await program.get_program_by_id(add_okr_info.program_id, db)
+        add_okr_info.goal_id = program_info.goal_id
+
     result = await okr.add_okr(add_okr_info.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
     return Result.success(msg='新增OKR成功', data=result.id)
 

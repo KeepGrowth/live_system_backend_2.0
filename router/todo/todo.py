@@ -24,6 +24,10 @@ async def add_todo(
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
+    if add_data.okr_id:
+        okr = await get_okr_by_id(db, add_data.okr_id)
+        add_data.program_id = okr.program_id
+        add_data.goal_id = okr.goal_id
     result = await todo.add_todo(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
     return Result.success(msg='新增Todo成功', data=result.id)
 
@@ -61,7 +65,7 @@ async def get_todo_list(
     total, result = await todo.query_todo_list(db=db,
                                                query_params=filter_data.model_dump(exclude_none=True,
                                                                                    exclude_unset=True))
-    todo_list = [TodoItemResponse().model_validate(r) for r in result]
+    todo_list = [TodoJoinItemResponse().model_validate(r) for r in result]
     res_data = TodoListResponse(todo_list=todo_list, total=total)
     return Result.success(data=res_data)
 

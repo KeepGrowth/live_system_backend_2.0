@@ -9,7 +9,7 @@ class WeightBase(Base):
     __abstract__ = True
 
     create_time: Mapped[datetime] = mapped_column(default=func.now(), comment="创建时间")
-    update_time: Mapped[datetime] = mapped_column(default=func.now(), comment="更新时间")
+    update_time: Mapped[datetime] = mapped_column(default=func.now(), comment="更新时间", onupdate=datetime.now, )
 
 
 # 体重类

@@ -5,6 +5,7 @@ from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete, and_
 from models.todo.todo import Todo
+from models.todo.todo_log import TodoLog
 from schemas.todo.todo import TodoAddRequest, TodoUpdateRequest
 from utils import sql
 
@@ -78,6 +79,9 @@ async def query_todo_list(
     total_stmt = select(func.count(Todo.id))
     list_stmt = select(Todo).options(
         selectinload(Todo.user),
+        selectinload(Todo.todo_logs).options(
+            selectinload(TodoLog.upload_images)
+        ),
         selectinload(Todo.upload_images)
     )
     # 比较年份

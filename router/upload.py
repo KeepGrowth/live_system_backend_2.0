@@ -56,9 +56,10 @@ async def upload_image(
     file_url = f"{BASE_URL}/{file_path}"
     params.user_id = current_user
     print('22222', params.to_non_empty_dict())
-    await add_image(db, image_params=params.to_non_empty_dict(), image_url=file_url)
+    new_image = await add_image(db, image_params=params.to_non_empty_dict(), image_url=file_url)
 
     return Result.success(msg="上传成功", data={
+        "id": new_image.id,
         "url": file_url,
         "filename": unique_filename
     })
