@@ -28,8 +28,8 @@ async def add_okr(
     if add_okr_info.program_id:
         program_info = await program.get_program_by_id(add_okr_info.program_id, db)
         add_okr_info.goal_id = program_info.goal_id
-
-    result = await okr.add_okr(add_okr_info.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
+    add_okr_info.user_id = current_user_id
+    result = await okr.add_okr(add_okr_info.model_dump(exclude_none=True, exclude_unset=True), db)
     return Result.success(msg='新增OKR成功', data=result.id)
 
 
@@ -109,3 +109,4 @@ async def get_okr_multi_options(
     result = await okr.query_okr_cascade_list(db, current_user_id)
     result = convert_to_year_program_okr_options(result)
     return Result.success(data=result)
+

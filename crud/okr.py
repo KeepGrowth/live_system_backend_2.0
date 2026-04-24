@@ -17,9 +17,8 @@ from utils import security, sql
 async def add_okr(
         add_data: dict,
         db: AsyncSession,
-        user_id: int,
 ):
-    new_okr = okr.Okr(**add_data, user_id=user_id)
+    new_okr = okr.Okr(**add_data)
     db.add(new_okr)
     await db.commit()
     await db.refresh(new_okr)
