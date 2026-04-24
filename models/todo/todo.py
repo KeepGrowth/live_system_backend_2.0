@@ -30,7 +30,6 @@ class Todo(TodoBase):
                                             comment="todo重要程度：0不紧急不重要，1不紧急重要，2不紧急不重要，3紧急重要")
     status: Mapped[int] = mapped_column(Integer, nullable=True, default=0,
                                         comment="todo状态：0待完成，1进行中，2已完成,3已放弃")
-    focus_time: Mapped[int] = mapped_column(Integer, nullable=True, default=0, comment="todo专注时间(分钟)")
     deadline: Mapped[Optional[date]] = mapped_column(Date, nullable=True, comment="todo截止日期")
     emotion: Mapped[Optional[str]] = mapped_column(String(10), nullable=True, default=0,
                                                    comment="todo心情：由AI预测的文本")
