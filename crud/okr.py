@@ -9,6 +9,7 @@ from sqlalchemy import select, func, and_
 from crud.todo.todo import build_filter_conditions
 from models import okr
 from models.okr import Okr
+from models.program import Program
 from utils import security, sql
 
 
@@ -43,6 +44,33 @@ async def query_okr_list(
         selectinload(Okr.user),
     )
     return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Okr)
+
+
+# 级联查询
+async def query_okr_cascade_list(
+        db: AsyncSession,
+        user_id: int
+):
+    """
+    年份→项目→OKR
+    :param db:
+    :param user_id:
+    :return:
+    """
+    stmt = (
+        select(
+            Okr.id,
+            Okr.program_id,
+            Okr.kr_name,
+            Okr.create_time,
+            Program.program_name,
+        )
+        .join(Okr.program)  # 通过关系进行连接
+        .where(Okr.user_id == user_id)
+        .order_by(Okr.create_time.desc())
+    )
+    result = await db.execute(stmt)
+    return result.mappings().all()
 
 
 # 根据id查询

@@ -70,37 +70,66 @@ def convert_to_year_goal_options(data):
     return options
 
 
-# 获取OKR级联选项
-def convert_to_year_okr_options(data):
+# 获取OKR级联选项-年份→项目→OKR
+def convert_to_year_program_okr_options(data):
     """
-    层级数据表工具
-    生成「年份→项目(ID+名称)」的级联选项
-    :param data: 原始项目列表
-    :return: 级联选择器options格式
+    生成「年份 → 项目 → OKR」的三级级联选项
     """
-    # 第一步：按创建时间的年份分组
-    year_groups = {}
+    # 使用字典存储分组，避免重复遍历
+    year_map = {}
+
     for item in data:
-        # 提取年份
-        print("11111", type(item['create_time']))
-        print(item['create_time'])
+        # 1. 获取年份 (第一层 Key)
         year = str(item['create_time']).split('-')[0]
-        # 初始化年份分组
-        if year not in year_groups:
-            year_groups[year] = {
-                'value': year,  # 一级value：年份
-                'label': f'{year}年',  # 一级label：XX年
-                'children': []  # 二级：该年份下的项目
+
+        # 2. 获取项目信息 (第二层 Key) - 假设查询时已包含 program_name
+        # 注意：这里假设 item 中已经有 'program_name' 字段
+        p_id = item['program_id']
+        p_name = item.get('program_name') or f"项目{p_id}"  # 防止名称为空
+
+        # --- 第一层：年份处理 ---
+        if year not in year_map:
+            year_map[year] = {
+                'value': year,
+                'label': f'{year}年',
+                'children': {}  # 这里先用字典存项目，方便去重，最后再转列表
             }
-        # 第二步：添加项目到对应年份（仅保留ID和名称）
-        year_groups[year]['children'].append({
-            'value': int(item['id']),  # 二级value:okrId
-            'label': item['kr_name']  # 二级label：项目名称
+
+        year_node = year_map[year]
+
+        # --- 第二层：项目处理 ---
+        # 检查该项目是否已在当前年份下存在
+        if p_id not in year_node['children']:
+            year_node['children'][p_id] = {
+                'value': p_id,
+                'label': p_name,
+                'children': []  # 这里存具体的 OKR
+            }
+
+        program_node = year_node['children'][p_id]
+
+        # --- 第三层：OKR 处理 ---
+        program_node['children'].append({
+            'value': int(item['id']),  # OKR的ID
+            'label': item['kr_name']  # OKR的名称
         })
 
-    # 转换为列表并按年份排序（可选）
-    options = sorted(year_groups.values(), key=lambda x: x['value'])
-    return options
+    # --- 格式化输出 ---
+    # 将嵌套字典转换为列表，并按需排序
+    result = []
+    for year_key in sorted(year_map.keys(), reverse=True):  # 按年份倒序 (2026 -> 2025)
+        year_node = year_map[year_key]
+
+        # 将项目字典转为列表
+        program_list = list(year_node['children'].values())
+
+        # (可选) 对项目名称进行排序
+        # program_list.sort(key=lambda x: x['label'])
+
+        year_node['children'] = program_list
+        result.append(year_node)
+
+    return result
 
 
 # 统计某个实体记录的完成率

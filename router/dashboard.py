@@ -14,7 +14,7 @@ from crud.todo import todo, todo_log
 from models.users import User
 from schemas.okr import *
 from utils.auth import get_current_user
-from utils.common import convert_to_year_okr_options
+
 from utils.response import Result
 from utils.review.statistic_card import AccumulateStatisticCard
 

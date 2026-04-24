@@ -7,7 +7,7 @@ from crud import okr
 from models.users import User
 from schemas.okr import *
 from utils.auth import get_current_user
-from utils.common import convert_to_year_okr_options
+from utils.common import  convert_to_year_program_okr_options
 from utils.response import Result
 from crud.program import program
 
@@ -106,7 +106,6 @@ async def get_okr_multi_options(
     :param current_user_id:
     :return:
     """
-    total, result = await okr.query_okr_list(db, query_params={"user_id": current_user_id})
-    okr_list = [r.__dict__ for r in result]
-    result = convert_to_year_okr_options(okr_list)
+    result = await okr.query_okr_cascade_list(db, current_user_id)
+    result = convert_to_year_program_okr_options(result)
     return Result.success(data=result)

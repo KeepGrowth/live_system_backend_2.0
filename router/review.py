@@ -18,7 +18,7 @@ from models.todo.todo_log import TodoLog
 from models.users import User
 from schemas.okr import *
 from utils.auth import get_current_user
-from utils.common import convert_to_year_okr_options, calculate_completion_rate, count_by_column, \
+from utils.common import calculate_completion_rate, count_by_column, \
     convert_df_to_stack_chart_data, convert_counts_to_pie_data
 from utils.response import Result
 from utils.review.statistic_card import AccumulateStatisticCard

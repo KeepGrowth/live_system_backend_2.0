@@ -109,7 +109,7 @@ def send_email_code(
 
 
 # 代码启动 + 热重载配置
-# 命令行启动：uvicorn main:app --reload --host 0.0.0.0 --port 8888
+# 命令行启动：uvicorn main:app --reload --host 0.0.0.0 --port 8891
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
