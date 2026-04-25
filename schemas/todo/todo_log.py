@@ -55,8 +55,8 @@ class TodoLogItemResponse(TodoLogAddRequest):
 
 class TodoLogJoinItemResponse(TodoLogAddRequest):
     id: int = Field(None, description="todo log id", alias="id")
-    image_urls: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
-                                                             alias="imageList")
+    upload_images: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
+                                                                alias="imageList")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
 

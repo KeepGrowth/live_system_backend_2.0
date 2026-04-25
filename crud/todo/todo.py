@@ -84,7 +84,7 @@ async def query_todo_list(
         ),
         selectinload(Todo.upload_images)
     )
-    # 比较年份
+    # 比较时间
     if query_params.get('start_date', None):
         total_stmt = total_stmt.where(Todo.deadline >= query_params.get('start_date'))
         list_stmt = list_stmt.where(Todo.deadline >= query_params.get('start_date'))

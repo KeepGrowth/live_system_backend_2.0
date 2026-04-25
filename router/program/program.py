@@ -6,7 +6,7 @@ from config.mysql_config import get_database
 from crud.program import program
 from models.users import User
 from schemas.program.program import ProgramAddRequest, ProgramItemResponse, ProgramListResponse, ProgramUpdateRequest, \
-    ProgramQueryParams
+    ProgramQueryParams, ProgramJoinItemResponse
 from utils.auth import get_current_user
 from utils.common import convert_to_year_program_options
 from utils.response import Result
@@ -48,11 +48,13 @@ async def get_program_list(
     total, result_list = await program.get_program_list(db=db,
                                                         query_params=query_params.model_dump(exclude_none=True,
                                                                                              exclude_unset=True))
-    program_list = [ProgramItemResponse().model_validate(item) for item in result_list]
+    for item in result_list:
+        item.focus_time = sum(getattr(log, 'focus_time', 0) or 0 for log in item.todo_logs)
+    program_list = [ProgramJoinItemResponse().model_validate(item) for item in result_list]
     if len(program_list) == 0:
         return Result.success(data=[])
     res_data = ProgramListResponse(total=total,
-                                   programList=program_list, )
+                                   programList=program_list)
     return Result.success(data=res_data)
 
 

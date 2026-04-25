@@ -59,11 +59,11 @@ class TodoJoinItemResponse(TodoAddRequest):
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
     # 关联信息
-    todo_logs: Optional[list[TodoLogJoinItemResponse]] = Field(default_factory=list, description="todo日志列表",
+    todo_logs: Optional[list[TodoLogJoinItemResponse]] = Field(None, description="todo日志列表",
                                                                alias="todoLogList")
     user: Optional[SafeUserResponse] = Field(None, description="用户信息", alias="user")
-    image_urls: Optional[list[UploadImagesResponse]] = Field(default_factory=list, description="图片列表",
-                                                             alias="imageList")
+    upload_images: Optional[list[UploadImagesResponse]] = Field(None, description="图片列表",
+                                                                alias="imageList")
 
 
 # 单个查询响应

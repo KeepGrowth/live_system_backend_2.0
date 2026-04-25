@@ -4,11 +4,11 @@ from fastapi import HTTPException
 from sqlalchemy.orm import selectinload
 from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, inspect, and_
+from sqlalchemy import select, func, inspect, and_, cast, Date
 
 from models.okr import Okr
 from models.program import Program, ProgramLog
-from models.todo.todo import Todo
+from models.program import Program
 from utils import security, sql
 from utils.sql import build_filter_conditions
 
@@ -39,10 +39,24 @@ async def get_program_list(
     list_stmt = select(Program).options(
         selectinload(Program.program_log),
         selectinload(Program.user),
+        selectinload(Program.okrs),
+        selectinload(Program.todo_logs),
         selectinload(Program.upload_images)
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Program.id))
+
+    if query_params.get('start_year', None):
+        start_date = datetime.date(query_params.get('start_year'), 1, 1)
+        total_stmt = total_stmt.where(Program.estimate_start_time >= start_date)
+        list_stmt = list_stmt.where(Program.estimate_start_time >= start_date)
+        query_params.pop('start_year')
+    if query_params.get('end_year', None):
+        end_date = datetime.date(query_params.get('end_year'), 12, 31)
+        total_stmt = total_stmt.where(cast(Program.estimate_start_time, Date) <= end_date)
+        list_stmt = list_stmt.where(Program.estimate_start_time <= end_date)
+        query_params.pop('end_year')
+
     return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Program)
 
 
