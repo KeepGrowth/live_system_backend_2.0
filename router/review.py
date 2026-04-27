@@ -19,7 +19,7 @@ from models.users import User
 from schemas.okr import *
 from utils.auth import get_current_user
 from utils.common import calculate_completion_rate, count_by_column, \
-    convert_df_to_stack_chart_data, convert_counts_to_pie_data
+    convert_df_to_stack_chart_data, convert_counts_to_pie_data, df_to_single_bar_chart_format
 from utils.response import Result
 from utils.review.statistic_card import AccumulateStatisticCard
 
@@ -97,7 +97,7 @@ async def get_goal_review(
                    TodoLog.goal_id,
                    TodoLog.focus_time,
                    Program.program_name,
-                   Goal.goal_name
+                   Goal.goal_name,
                    )
             .join(Program, Program.id == TodoLog.program_id, isouter=True)
             .join(Goal, Goal.id == TodoLog.goal_id, isouter=True)
@@ -111,11 +111,7 @@ async def get_goal_review(
         todo_log_list.append(item)
 
     todo_log_df = pd.DataFrame(todo_log_list)
-    consume_time_distribution_dict = convert_df_to_stack_chart_data(
-        todo_log_df,
-        'program_name',
-        'goal_name',
-        'focus_time')
+    consume_time_distribution_dict = df_to_single_bar_chart_format(todo_log_df, 'goal_name', 'focus_time')
     # 返回数据
     res_data = {
         'goalCompletion': float(goal_completion) * 100,

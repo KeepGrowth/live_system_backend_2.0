@@ -258,6 +258,33 @@ def convert_counts_to_pie_data(counts_series, value_key='value', name_key='name'
     return data
 
 
+# 将df转为单条形图数据格式
+def df_to_single_bar_chart_format(df, name_col, value_col, agg_func='sum'):
+    """
+    将 DataFrame 转换为 [{name: '...', value: ...}] 格式，并按 value 降序排列。
+
+    参数:
+    df: 输入的 DataFrame
+    name_col: 作为 'name' 的列名 (例如: '指标名称')
+    value_col: 作为 'value' 的列名 (例如: 'focus_time')
+    agg_func: 聚合方式，默认为 'sum'，也可以是 'mean', 'count' 等
+    """
+    # 1. 分组并聚合
+    grouped = df.groupby(name_col)[value_col].agg(agg_func)
+
+    # 2. 重置索引，变回 DataFrame，并重命名列
+    result_df = grouped.reset_index()
+    result_df.columns = ['name', 'value']
+
+    # 3. 【新增】按 'value' 列进行降序排序
+    result_df = result_df.sort_values(by='value', ascending=False)
+
+    # 4. 转换为字典列表
+    result_list = result_df.to_dict(orient='records')
+
+    return result_list
+
+
 # 校验验证码
 def verify_code(
         code: str,
