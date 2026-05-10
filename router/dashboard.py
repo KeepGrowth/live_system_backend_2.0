@@ -87,7 +87,7 @@ async def get_statistic_card(
         },
         {
             'title': '累计达成项目',
-            'subtitle': f'完成率{goal_indicator["completion_rate"]}%',
+            'subtitle': f'完成率{program_indicator["completion_rate"]}%',
             'value': program_indicator['completed_count'],
             'targetValue': program_indicator['total_count'],
             'unit': '项',

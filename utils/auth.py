@@ -50,11 +50,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: str = payload.get("user_id")
         if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="无法获取到用户ID，请检查JWT令牌",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            return Result.error(code=401, msg="令牌校验失败，请重新登录")
         return user_id
     except jwt.PyJWTError:
         raise HTTPException(
