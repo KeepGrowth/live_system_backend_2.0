@@ -53,7 +53,7 @@ async def upload_image(
         raise HTTPException(status_code=500, detail=f"文件保存失败: {str(e)}")
 
     # 5. 构建返回给前端的 URL
-    file_url = f"{BASE_URL}/{file_path}"
+    file_url = f"{BASE_URL}{file_path}"
     params.user_id = current_user
     print('22222', params.to_non_empty_dict())
     new_image = await add_image(db, image_params=params.to_non_empty_dict(), image_url=file_url)
