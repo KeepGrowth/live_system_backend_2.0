@@ -3,9 +3,12 @@ from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
-from crud.finance import income
+from crud.finance import income, second_cate
+from crud.finance import income_cate
 from crud.okr import get_okr_by_id
 from schemas.finance.income import *
+from schemas.finance.income_cate import IncomeFirstCateItemResponse, IncomeFirstCateListResponse
+from schemas.finance.income_second_cate import IncomeSecondCateItemResponse, IncomeSecondCateListResponse
 from utils.auth import get_current_user
 from utils.response import Result
 
@@ -96,3 +99,34 @@ async def delete_income(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='无权限删除该Income')
     result = await income.delete_income(income_id, db)
     return Result.success(data=result)
+
+
+# 查询收入一级分类列表
+@router.get('/first_cate/list')
+async def get_income_first_cate_list(
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    查询收入一级分类列表
+    """
+    total, result = await income_cate.query_first_cate_list(db, user_id=current_user_id)
+    result_list = [IncomeFirstCateItemResponse().model_validate(r) for r in result]
+    res_data = IncomeFirstCateListResponse(income_first_cate_list=result_list, total=total)
+    return Result.success(data=res_data)
+
+
+# 根据一级分类ID查询二级分类列表
+@router.get('/second_cate/list/{first_cate_id}')
+async def get_income_second_cate_list(
+        first_cate_id: int = Path(...),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    """
+    根据一级分类ID查询二级分类列表
+    """
+    total, result = await second_cate.query_second_cate_list(db, user_id=current_user_id, first_cate_id=first_cate_id)
+    result_list = [IncomeSecondCateItemResponse().model_validate(r) for r in result]
+    res_data = IncomeSecondCateListResponse(income_second_cate_list=result_list, total=total)
+    return Result.success(data=res_data)

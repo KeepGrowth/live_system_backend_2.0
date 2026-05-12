@@ -11,6 +11,10 @@ from datetime import date, datetime
 class UploadBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
+    @property
+    def create_time_str(self) -> str:
+        return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+
 
 
 # 图床类

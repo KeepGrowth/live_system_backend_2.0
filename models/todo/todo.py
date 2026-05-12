@@ -13,6 +13,13 @@ class TodoBase(Base):
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
                                                   onupdate=datetime.now, )
+    @property
+    def create_time_str(self) -> str:
+        return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    @property
+    def update_time_str(self) -> str:
+        return self.update_time.strftime("%Y-%m-%d %H:%M:%S")
 
 
 # todo类
