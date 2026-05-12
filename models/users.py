@@ -11,7 +11,8 @@ from datetime import date, datetime
 class UserBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
-    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",onupdate=datetime.now, )
+    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
+                                                  onupdate=datetime.now, )
 
 
 # 用户类
@@ -57,6 +58,8 @@ class User(UserBase):
     todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="user")
     # 关联图片
     upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="user")
+    # 关联收入
+    incomes: Mapped[List["Income"]] = relationship("Income", back_populates="user")
 
     # ----------------- 标签状态映射 -----------------
     @property

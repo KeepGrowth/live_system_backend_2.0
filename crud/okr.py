@@ -6,7 +6,7 @@ from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 
-from crud.todo.todo import build_filter_conditions
+
 from models import okr
 from models.okr import Okr
 from models.program import Program

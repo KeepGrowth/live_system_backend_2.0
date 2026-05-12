@@ -7,8 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.staticfiles import StaticFiles
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 import redis
+
+
 from middleware import LogMiddleware
 from router import users, weight, upload, dashboard, review
+from router.finance import income
 from router.program import program_log, program
 from router.goal import goal, goal_cate
 from router import okr
@@ -38,6 +41,7 @@ app.include_router(todo_log.router)
 app.include_router(upload.router)
 app.include_router(dashboard.router)
 app.include_router(review.router)
+app.include_router(income.router)
 
 # 挂载uploads目录为静态文件目录
 app.mount(UPLOAD_DIR, StaticFiles(directory=UPLOAD_DIR), name="uploads")
