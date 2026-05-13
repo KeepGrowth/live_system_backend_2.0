@@ -3,7 +3,8 @@ from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
-from crud.finance import expense
+from crud import upload
+from crud.finance import expense, expense_cate, expense_second_cate
 from crud.okr import get_okr_by_id
 from schemas.finance.expense import *
 from schemas.finance.expense_cate import ExpenseFirstCateItemResponse, ExpenseFirstCateListResponse
@@ -27,7 +28,20 @@ async def add_expense(
         okr = await get_okr_by_id(db, add_data.okr_id)
         add_data.program_id = okr.program_id
         add_data.goal_id = okr.goal_id
-    result = await expense.add_expense(add_data.model_dump(exclude_none=True, exclude_unset=True), db, current_user_id)
+    result = await expense.add_expense(
+        add_data.model_dump(exclude_none=True, exclude_unset=True, exclude={'image_list'}), db, current_user_id)
+    # 新增成功后更新对应的图片ID绑定
+    if result and add_data.image_list:
+        for item in add_data.image_list:
+            if item.get('id', None) is None:
+                continue
+            await upload.update_image(db, item['id'], {
+                "image_url": item['url'],
+                "okr_id": result.okr_id,
+                "program_id": result.program_id,
+                "goal_id": result.goal_id,
+                "expense_id": result.id
+            })
     return Result.success(msg='新增Expense成功', data=result.id)
 
 
@@ -64,6 +78,7 @@ async def get_expense_list(
     total, result = await expense.query_expense_list(db=db,
                                                      query_params=filter_data.model_dump(exclude_none=True,
                                                                                          exclude_unset=True))
+
     expense_list = [ExpenseJoinItemResponse().model_validate(r) for r in result]
     res_data = ExpenseJoinListResponse(expense_list=expense_list, total=total)
     return Result.success(data=res_data)
@@ -125,7 +140,8 @@ async def get_expense_second_cate_list(
     """
     根据一级分类ID查询二级分类列表
     """
-    total, result = await second_cate.query_second_cate_list(db, user_id=current_user_id, first_cate_id=first_cate_id)
+    total, result = await expense_second_cate.query_second_cate_list(db, user_id=current_user_id,
+                                                                     first_cate_id=first_cate_id)
     result_list = [ExpenseSecondCateItemResponse().model_validate(r) for r in result]
     res_data = ExpenseSecondCateListResponse(expense_second_cate_list=result_list, total=total)
     return Result.success(data=res_data)

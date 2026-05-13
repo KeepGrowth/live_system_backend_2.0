@@ -18,7 +18,6 @@ class TodoLogAddRequest(BaseModel):
     log_desc: Optional[str] = Field(None, description="todo log desc", alias="logDesc")
     emotion: Optional[str] = Field(None, description="日志情绪-AI预测生成", alias="emotion")
     image_list: Optional[list[dict]] = Field(None, description="图片列表", alias="imageList")
-    attachment_path: Optional[str] = Field(None, description="todo log attachment path", alias="attachmentPath")
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值

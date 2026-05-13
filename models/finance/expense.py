@@ -35,6 +35,12 @@ class Expense(ExpenseBase):
     amount: Mapped[float] = mapped_column(Float, nullable=False, comment="支出金额")
     expense_date: Mapped[date] = mapped_column(Date, nullable=False, comment="支出时间")
     note: Mapped[Optional[str]] = mapped_column(Text, nullable=True, comment="支出备注")
+    okr_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('okr.id'), nullable=True,
+                                                  comment="外键关联-OKR id")
+    program_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('program.id'), nullable=True,
+                                                      comment="外键关联-项目id")
+    goal_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True,
+                                                   comment="外键关联-目标id")
 
     # 2. 定义 Property
     @property

@@ -8,9 +8,13 @@ from schemas.upload_images import UploadImagesResponse
 # 支出实体属性
 class ExpenseAddRequest(BaseModel):
     user_id: Optional[int] = Field(None, description="用户id", alias="userId")
+    okr_id: Optional[int] = Field(None, description="OKR id", alias="okrId")
+    program_id: Optional[int] = Field(None, description="项目id", alias="programId")
+    goal_id: Optional[int] = Field(None, description="目标id", alias="goalId")
     first_cate_id: Optional[int] = Field(None, description="支出一级分类id", alias="firstCateId")
     second_cate_id: Optional[int] = Field(None, description="支出二级分类id", alias="secondCateId")
     amount: Optional[float] = Field(None, description="金额", alias="amount")
+    image_list: Optional[list[dict]] = Field(None, description="图片列表", alias="imageList")
     expense_date: Optional[date] = Field(None, description="支出时间", alias="expenseDate")
     note: Optional[str] = Field(None, description="备注", alias="note")
     model_config = ConfigDict(

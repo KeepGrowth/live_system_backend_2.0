@@ -38,6 +38,8 @@ class ImageUploadParams:
             okr_id: Optional[int] = Form(None, alias="okrId"),
             todo_id: Optional[int] = Form(None, alias="todoId"),
             todo_log_id: Optional[int] = Form(None, alias="todoLogId"),
+            expense_id: Optional[int] = Form(None, alias="expenseId"),
+            income_id: Optional[int] = Form(None, alias="incomeId"),
     ):
         self.program_id = program_id
         self.goal_id = goal_id
@@ -46,6 +48,8 @@ class ImageUploadParams:
         self.todo_log_id = todo_log_id
         self.image_url = None
         self.user_id = None
+        self.expense_id = expense_id,
+        self.income_id = income_id
 
     def to_non_empty_dict(self) -> Dict[str, Any]:
         """
