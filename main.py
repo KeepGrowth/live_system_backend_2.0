@@ -11,7 +11,7 @@ import redis
 
 from middleware import LogMiddleware
 from router import users, weight, upload, dashboard, review
-from router.finance import income
+from router.finance import income, expense
 from router.program import program_log, program
 from router.goal import goal, goal_cate
 from router import okr
@@ -42,6 +42,7 @@ app.include_router(upload.router)
 app.include_router(dashboard.router)
 app.include_router(review.router)
 app.include_router(income.router)
+app.include_router(expense.router)
 
 # 挂载uploads目录为静态文件目录
 app.mount(UPLOAD_DIR, StaticFiles(directory=UPLOAD_DIR), name="uploads")

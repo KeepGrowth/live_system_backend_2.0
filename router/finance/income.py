@@ -3,7 +3,7 @@ from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
-from crud.finance import income, second_cate
+from crud.finance import income, income_second_cate
 from crud.finance import income_cate
 from crud.okr import get_okr_by_id
 from schemas.finance.income import *
@@ -126,7 +126,7 @@ async def get_income_second_cate_list(
     """
     根据一级分类ID查询二级分类列表
     """
-    total, result = await second_cate.query_second_cate_list(db, user_id=current_user_id, first_cate_id=first_cate_id)
+    total, result = await income_second_cate.query_second_cate_list(db, user_id=current_user_id, first_cate_id=first_cate_id)
     result_list = [IncomeSecondCateItemResponse().model_validate(r) for r in result]
     res_data = IncomeSecondCateListResponse(income_second_cate_list=result_list, total=total)
     return Result.success(data=res_data)

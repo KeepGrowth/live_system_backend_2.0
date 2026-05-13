@@ -13,6 +13,7 @@ class UserBase(Base):
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
                                                   onupdate=datetime.now(), )
+
     @property
     def create_time_str(self) -> str:
         return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -67,6 +68,8 @@ class User(UserBase):
     upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="user")
     # 关联收入
     incomes: Mapped[List["Income"]] = relationship("Income", back_populates="user")
+    # 关联支出
+    expenses: Mapped[List["Expense"]] = relationship("Expense", back_populates="user")
 
     # ----------------- 标签状态映射 -----------------
     @property

@@ -28,6 +28,13 @@ class Income(IncomeBase):
     __tablename__ = "income"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True, comment="收入id")
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False, comment="外键关联-用户id")
+    # 关联的项目支出费用。
+    okr_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('okr.id'), nullable=True,
+                                                  comment="外键关联-OKR id")
+    program_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('program.id'), nullable=True,
+                                                      comment="外键关联-项目id")
+    goal_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True,
+                                                   comment="外键关联-目标id")
     first_cate_id: Mapped[int] = mapped_column(Integer, ForeignKey('income_cate.id'), nullable=False,
                                                comment="外键关联-收入一级分类id")
     second_cate_id: Mapped[int] = mapped_column(Integer, ForeignKey('income_second_cate.id'), nullable=False,

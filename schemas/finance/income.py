@@ -8,6 +8,9 @@ from schemas.upload_images import UploadImagesResponse
 # 收入实体属性
 class IncomeAddRequest(BaseModel):
     user_id: Optional[int] = Field(None, description="用户id", alias="userId")
+    okr_id: Optional[int] = Field(None, description="OKR id", alias="okrId")
+    program_id: Optional[int] = Field(None, description="项目id", alias="programId")
+    goal_id: Optional[int] = Field(None, description="目标id", alias="goalId")
     first_cate_id: Optional[int] = Field(None, description="收入一级分类id", alias="firstCateId")
     second_cate_id: Optional[int] = Field(None, description="收入二级分类id", alias="secondCateId")
     amount: Optional[float] = Field(None, description="金额", alias="amount")

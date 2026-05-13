@@ -11,10 +11,10 @@ from datetime import date, datetime
 class UploadBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
+
     @property
     def create_time_str(self) -> str:
         return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
-
 
 
 # 图床类
@@ -29,6 +29,7 @@ class UploadImages(UploadBase):
     program_id: Mapped[int] = mapped_column(Integer, ForeignKey('program.id'), nullable=True, comment="外键-项目id")
     goal_id: Mapped[int] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True, comment="外键-目标id")
     income_id: Mapped[int] = mapped_column(Integer, ForeignKey('income.id'), nullable=True, comment="外键-收入id")
+    expense_id: Mapped[int] = mapped_column(Integer, ForeignKey('expense.id'), nullable=True, comment="外键-支出id")
     image_url: Mapped[str] = mapped_column(Text, nullable=False, comment="图片URL")
 
     # --- 反向映射关系 ---
@@ -47,6 +48,8 @@ class UploadImages(UploadBase):
     # 一个图片对应一个目标
     goal: Mapped["Goal"] = relationship("Goal", back_populates="upload_images", foreign_keys=[goal_id])
     income: Mapped["Income"] = relationship("Income", back_populates="upload_images", foreign_keys=[income_id])
+    # 一个图片对应一个收入
+    expense: Mapped["Expense"] = relationship("Expense", back_populates="upload_images", foreign_keys=[expense_id])
 
     # ----------- 标签映射方法 -----------
     @property
