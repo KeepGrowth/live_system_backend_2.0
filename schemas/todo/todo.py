@@ -58,6 +58,9 @@ class TodoJoinItemResponse(TodoAddRequest):
     id: int = Field(None, description="todo id", alias="id")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+    kr_name: Optional[str] = Field(None, description="KR名称", alias="krName")
+    program_name: Optional[str] = Field(None, description="项目名称", alias="programName")
+    goal_name: Optional[str] = Field(None, description="目标名称", alias="goalName")
     # 关联信息
     todo_logs: Optional[list[TodoLogJoinItemResponse]] = Field(None, description="todo日志列表",
                                                                alias="todoLogList")

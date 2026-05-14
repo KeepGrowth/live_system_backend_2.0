@@ -73,3 +73,20 @@ class Okr(OkrBase):
             return "已放弃"
         else:
             return "未知"
+
+    # 2. 定义 Property
+    @property
+    def program_name(self) -> str:
+        """获取项目名称"""
+        # 检查关联对象是否存在，防止报错
+        if self.program:
+            return self.program.program_name  # 假设分类表里的名称字段叫 name
+        return ""
+
+    @property
+    def goal_name(self) -> str:
+        """获取目标名称"""
+        # 检查关联对象是否存在，防止报错
+        if self.goal:
+            return self.goal.goal_name  # 假设分类表里的名称字段叫 name
+        return ""

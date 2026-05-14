@@ -48,20 +48,4 @@ class AccumulateStatisticCard:
 
 
 
-# --- 测试示例 ---
 
-# 构造模拟数据
-data = {
-    'id': [101, 102, 103, 104, 105, 106],
-    'task_name': ['写报告', '修Bug', '开会', '代码审查', '部署', '测试'],
-    'status': [0, 1, 2, 2, 3, 2]  # 对应：待完成, 进行中, 已完成, 已完成, 已放弃, 已完成
-}
-df_test = pd.DataFrame(data)
-
-# 调用函数
-a = AccumulateStatisticCard()
-result = a.calculate_completion_stats(df_test, status_col='status')
-
-print(f"总记录数: {result['total_count']}")
-print(f"已完成数: {result['completed_count']}")
-print(f"完成率: {result['completion_rate']}%")

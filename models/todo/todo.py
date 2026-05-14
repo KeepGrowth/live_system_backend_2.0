@@ -13,6 +13,7 @@ class TodoBase(Base):
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
     update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
                                                   onupdate=datetime.now, )
+
     @property
     def create_time_str(self) -> str:
         return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -63,6 +64,30 @@ class Todo(TodoBase):
     todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="todo", lazy="selectin")
     # 一个todo对应多个图片
     upload_images: Mapped[List["UploadImages"]] = relationship("UploadImages", back_populates="todo", lazy="selectin")
+
+    @property
+    def kr_name(self) -> str:
+        """获取OKR名称"""
+        # 检查关联对象是否存在，防止报错
+        if self.okr:
+            return self.okr.kr_name
+        return ""
+
+    @property
+    def goal_name(self) -> str:
+        """获取目标名称"""
+        # 检查关联对象是否存在，防止报错
+        if self.goal:
+            return self.goal.goal_name
+        return ""
+
+    @property
+    def program_name(self) -> str:
+        """获取项目名称"""
+        # 检查关联对象是否存在，防止报错
+        if self.program:
+            return self.program.program_name
+        return ""
 
     # -------------------- 标签映射方法 --------------------
     @property

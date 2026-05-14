@@ -22,12 +22,15 @@ class UserLogin(BaseModel):
 class UserUpdate(BaseModel):
     id: Optional[int] = Field(None, alias="id")
     username: Optional[str] = Field(None, alias="username")
+    nickname: Optional[str] = Field(None, alias="nickname")
+    realname: Optional[str] = Field(None, alias="realname")
     birthday: Optional[date] = Field(None, alias="birthday")
     email: Optional[str] = Field(None, alias="email")
-    gender: Optional[int] = Field(None, alias="gender")
-    avatar: Optional[str] = Field(None, alias="avatar")
+    gender: Optional[int] = Field(0, alias="gender")
+    avatar: Optional[str] = Field(
+        'https://api.dicebear.com/9.x/pixel-art/png?seed=john&size=200&backgroundColor=b6e3f4', alias="avatar")
     role: Optional[int] = Field(None, alias="role")
-    status: Optional[int] = Field(None, alias="status")
+    status: Optional[int] = Field(1, alias="status")
     status_desc: Optional[str] = Field(None, alias="statusDesc")
     signature: Optional[str] = Field(None, alias="signature")
     occupation: Optional[str] = Field(None, alias="occupation")
@@ -64,6 +67,8 @@ class PwdUpdate(BaseModel):
 class SafeUserResponse(BaseModel):
     id: int = Field(None, alias="id")
     username: Optional[str] = Field(None, alias="username")
+    nickname: Optional[str] = Field(None, alias="nickname")
+    realname: Optional[str] = Field(None, alias="realname")
     birthday: Optional[date] = Field(None, alias="birthday")
     email: Optional[str] = Field(None, alias="email")
     gender: Optional[int] = Field(None, alias="gender")
@@ -75,8 +80,8 @@ class SafeUserResponse(BaseModel):
     occupation: Optional[str] = Field(None, alias="occupation")
     industry: Optional[str] = Field(None, alias="industry")
     city: Optional[str] = Field(None, alias="city")
-    create_time: Optional[datetime] = Field(None, alias="createTime")
-    update_time: Optional[datetime] = Field(None, alias="updateTime")
+    create_time_str: Optional[datetime] = Field(None, alias="createTimeStr")
+    update_time_str: Optional[datetime] = Field(None, alias="updateTimeStr")
 
     model_config = ConfigDict(
         populate_by_name=True,  # alias 、字段名兼容

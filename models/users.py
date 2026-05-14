@@ -33,6 +33,8 @@ class User(UserBase):
     email: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="邮箱")
     gender: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, default=0,
                                                   comment="性别： 0保密，1男，2女")  # 0保密，1男，2女
+    nickname: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="昵称")
+    realname: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="真实姓名")
     # 头像URL
     avatar: Mapped[Optional[str]] = mapped_column(String(255), nullable=True, comment="头像URL")
     # 角色

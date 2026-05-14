@@ -34,6 +34,9 @@ async def query_todo_list(
     total_stmt = select(func.count(Todo.id))
     list_stmt = select(Todo).options(
         selectinload(Todo.user),
+        selectinload(Todo.okr),
+        selectinload(Todo.program),
+        selectinload(Todo.goal),
         selectinload(Todo.todo_logs).options(
             selectinload(TodoLog.upload_images)
         ),

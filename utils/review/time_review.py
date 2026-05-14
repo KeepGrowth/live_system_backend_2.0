@@ -130,7 +130,6 @@ if __name__ == "__main__":
         'create_time': [datetime(2026, 4, 19, 9, 0), datetime(2026, 4, 19, 10, 0), datetime(2026, 4, 19, 11, 0)]
     }
     df_log = pd.DataFrame(data_log)
-    print(df_log)
 
     # 调用函数
     target = date(2026, 4, 19)

@@ -84,8 +84,10 @@ async def get_okr_by_id(
     :return:
     """
     stmt = (select(Okr).options(
-        selectinload(Okr.upload_images),
         selectinload(Okr.user),
+        selectinload(Okr.program),
+        selectinload(Okr.goal),
+        selectinload(Okr.upload_images),
     )
             .where(Okr.id == okr_id))
     target_okr = await db.execute(stmt)

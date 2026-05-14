@@ -41,6 +41,16 @@ class OkrJoinItemResponse(OkrAddRequest):
     image_urls: Optional[list[UploadImagesResponse]] = Field(None, description="图片列表", alias="imageUrls")
 
 
+# OKR详情响应数据模型
+class OkrDetailResponse(OkrAddRequest):
+    id: Optional[int] = Field(None, description="OKR id", alias="id")
+    user: Optional[SafeUserResponse] = Field(None, description="用户名称", alias="user")
+    program_name: Optional[str] = Field(None, description="项目名称", alias="programName")
+    goal_name: Optional[str] = Field(None, description="目标名称", alias="goalName")
+    create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
+    update_time_str: Optional[str] = Field(None, description="更新时间", alias="updateTimeStr")
+
+
 # 单个信息响应数据校验模型
 class OkrItemResponse(OkrAddRequest):
     id: int = Field(None, description="OKR id", alias="id")
