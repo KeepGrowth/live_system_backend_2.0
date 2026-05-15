@@ -39,12 +39,17 @@ async def get_program_list(
     list_stmt = select(Program).options(
         selectinload(Program.program_log),
         selectinload(Program.user),
+        selectinload(Program.goal),
         selectinload(Program.okrs),
         selectinload(Program.todo_logs),
         selectinload(Program.upload_images)
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Program.id))
+    if query_params.get('keyword', None):
+        list_stmt = list_stmt.where(Program.program_name.like(f"%{query_params.get('keyword')}%"))
+        total_stmt = total_stmt.where(Program.program_name.like(f"%{query_params.get('keyword')}%"))
+        query_params.pop('keyword')
 
     if query_params.get('start_year', None):
         start_date = datetime.date(query_params.get('start_year'), 1, 1)
@@ -68,6 +73,9 @@ async def get_program_by_id(
     query = select(Program).options(
         selectinload(Program.upload_images),
         selectinload(Program.user),
+        selectinload(Program.okrs),
+        selectinload(Program.goal),
+        selectinload(Program.todo_logs),
         selectinload(Program.program_log),
     ).where(Program.id == program_id)
     result = await db.execute(query)

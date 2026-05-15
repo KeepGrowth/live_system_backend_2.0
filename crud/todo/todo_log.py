@@ -57,6 +57,19 @@ def build_filter_conditions(
     return filter_conditions
 
 
+# 根据okrid查询
+async def get_log_by_okr_id(
+        okr_id: int,
+        db: AsyncSession,
+):
+    """
+    根据id查询todo
+    """
+    stmt = select(TodoLog).where(TodoLog.okr_id == okr_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 # 新增
 async def add_todo_log(add_data: dict, db: AsyncSession):
     new_todo_log = TodoLog(**add_data)

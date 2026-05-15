@@ -6,7 +6,6 @@ from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, and_
 
-
 from models import okr
 from models.okr import Okr
 from models.program import Program
@@ -40,9 +39,24 @@ async def query_okr_list(
     total_stmt = select(func.count(Okr.id))
     list_stmt = select(Okr).options(
         selectinload(Okr.upload_images),
+        selectinload(Okr.program),
+        selectinload(Okr.goal),
         selectinload(Okr.user),
     )
     return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Okr)
+
+
+# 根据项目id查询
+async def get_okr_list_by_program_id(
+        db: AsyncSession,
+        program_id: int
+):
+    list_stmt = select(Okr).options(
+        selectinload(Okr.program),
+        selectinload(Okr.goal)
+    ).where(Okr.program_id == program_id)
+    result = await db.execute(list_stmt)
+    return result.scalars().all()
 
 
 # 级联查询

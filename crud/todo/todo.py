@@ -10,8 +10,6 @@ from schemas.todo.todo import TodoAddRequest, TodoUpdateRequest
 from utils import sql
 
 
-
-
 # 新增
 async def add_todo(
         add_data: dict,
@@ -71,6 +69,19 @@ async def get_todo_by_id(
     ).where(Todo.id == todo_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
+
+
+# 根据okrid查询todo
+async def get_todo_by_okr_id(
+        okr_id: int,
+        db: AsyncSession,
+):
+    """
+    根据id查询todo
+    """
+    stmt = select(Todo).where(Todo.okr_id == okr_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 
 # 更新

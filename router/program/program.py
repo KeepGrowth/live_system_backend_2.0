@@ -77,7 +77,7 @@ async def get_program_detail(
         return Result.error(msg="无访问权限", code=403)
     if not program_detail:
         return Result.error(msg="项目不存在", code=404)
-    res_data = ProgramItemResponse().model_validate(program_detail)
+    res_data = ProgramJoinItemResponse().model_validate(program_detail)
     return Result.success(data=res_data)
 
 

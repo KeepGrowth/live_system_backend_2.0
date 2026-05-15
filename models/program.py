@@ -11,7 +11,9 @@ from datetime import date, datetime
 class ProgramBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
-    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",onupdate=datetime.now(), )
+    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
+                                                  onupdate=datetime.now(), )
+
     @property
     def create_time_str(self) -> str:
         return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
@@ -43,6 +45,7 @@ class Program(ProgramBase):
     program_name: Mapped[Optional[str]] = mapped_column(String(50), unique=False, comment="项目名称")
     goal_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('goal.id'), nullable=True,
                                                    comment="外键关联-目标id")
+    cover: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="项目封面")
     program_desc: Mapped[str] = mapped_column(Text, default="待完善", comment="项目描述|预期达成结果")
     program_status: Mapped[int] = mapped_column(Integer, default=0, comment="项目状态：0待完成，1进行中，2已完成,3已放弃")
     attachment_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="项目附件路径")
@@ -72,6 +75,15 @@ class Program(ProgramBase):
     todos: Mapped[List["Todo"]] = relationship("Todo", back_populates="program")
     # 关联todo日志
     todo_logs: Mapped[List["TodoLog"]] = relationship("TodoLog", back_populates="program")
+
+    # 2. 定义 Property
+    @property
+    def goal_name(self) -> str:
+        """获取项目名称"""
+        # 检查关联对象是否存在，防止报错
+        if self.goal:
+            return self.goal.goal_name
+        return ""
 
 
 # 项目完成日志

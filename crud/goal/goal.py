@@ -59,6 +59,14 @@ async def query_goal_list(
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）
     total_stmt = select(func.count(Goal.id))
+    if query_params.get('keyword', None):
+        list_stmt = list_stmt.where(
+            Goal.goal_name.like(f'%{query_params.get("keyword")}%')
+        )
+        total_stmt = total_stmt.where(
+            Goal.goal_name.like(f'%{query_params.get("keyword")}%')
+        )
+        query_params.pop('keyword')
 
     # 比较年份
     if query_params.get('start_year', None):

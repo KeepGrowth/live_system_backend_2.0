@@ -3,11 +3,12 @@ from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
-from crud import okr
+from crud import okr, upload
+from crud.todo import todo, todo_log
 from models.users import User
 from schemas.okr import *
 from utils.auth import get_current_user
-from utils.common import  convert_to_year_program_okr_options
+from utils.common import convert_to_year_program_okr_options
 from utils.response import Result
 from crud.program import program
 
@@ -43,8 +44,8 @@ async def get_okr_list(
     okr_query_params.user_id = current_user_id
     total, result = await okr.query_okr_list(db, query_params=okr_query_params.model_dump(exclude_none=True,
                                                                                           exclude_unset=True))
-    okr_list = [OkrItemResponse().model_validate(r) for r in result]
-    res_data = OkrListResponse(okr_list=okr_list, total=total)
+    okr_list = [OkrDetailResponse().model_validate(r) for r in result]
+    res_data = OkrDetailListResponse(okr_list=okr_list, total=total)
     return Result.success(data=res_data)
 
 
@@ -64,6 +65,18 @@ async def add_goal(
     return Result.success(data=goal_info)
 
 
+# 根据项目id查询okr
+@router.get('/list-by-program-id/{program_id}')
+async def get_okr_list_by_program_id(
+        program_id: int = Path(...),
+        db: AsyncSession = Depends(get_database),
+        current_user_id: int = Depends(get_current_user)
+):
+    result = await okr.get_okr_list_by_program_id(db, program_id)
+    okr_list = [OkrDetailResponse().model_validate(r) for r in result]
+    return Result.success(data=okr_list)
+
+
 @router.put('/update')
 async def update_okr(
         update_data: OkrUpdateRequest,
@@ -72,8 +85,32 @@ async def update_okr(
 ):
     if update_data.user_id != current_user_id:
         return Result.error(msg='无权限更新该OKR', code=403)
-    print('11111', update_data)
+    if update_data.program_id:
+        program_info = await program.get_program_by_id(update_data.program_id, db)
+        update_data.program_id = program_info.id
+        update_data.goal_id = program_info.goal_id
     result = await okr.update_okr(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
+
+    # 同步更新todo、todo_log、图片附件
+    todo_records = await todo.get_todo_by_okr_id(result.id, db)
+    for todo_record in todo_records:
+        todo_record.okr_id = result.id
+        todo_record.program_id = result.program_id
+        todo_record.goal_id = result.goal_id
+        await todo.update_todo(todo_record.__dict__, db)
+
+    todo_log_records = await todo_log.get_log_by_okr_id(result.id, db)
+    for todo_log_record in todo_log_records:
+        todo_log_record.okr_id = result.id
+        todo_log_record.program_id = result.program_id
+        todo_log_record.goal_id = result.goal_id
+        await todo_log.update_todo_log(todo_log_record.__dict__, db)
+    upload_images = await upload.get_upload_by_okr_id(result.id, db)
+    for upload_image in upload_images:
+        upload_image.okr_id = result.id
+        upload_image.program_id = result.program_id
+        upload_image.goal_id = result.goal_id
+        await upload.update_upload(upload_image.__dict__, db)
     if not result:
         return Result.error(msg='更新OKR失败', code=403)
     updated_okr = OkrItemResponse().model_validate(result)
@@ -109,4 +146,3 @@ async def get_okr_multi_options(
     result = await okr.query_okr_cascade_list(db, current_user_id)
     result = convert_to_year_program_okr_options(result)
     return Result.success(data=result)
-

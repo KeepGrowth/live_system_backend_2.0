@@ -10,7 +10,8 @@ from datetime import date, datetime
 class GoalBase(Base):
     __abstract__ = True
     create_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="创建时间")
-    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",onupdate=datetime.now, )
+    update_time: Mapped[datetime] = mapped_column(DateTime, default=func.now(), comment="更新时间",
+                                                  onupdate=datetime.now, )
 
     @property
     def create_time_str(self) -> str:
@@ -28,6 +29,7 @@ class GoalCategory(GoalBase):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False, comment="外键关联-用户id")
     category_name: Mapped[str] = mapped_column(String(50), comment="目标分类名称")
     description: Mapped[str] = mapped_column(Text, default="待完善", comment="目标分类描述")
+
 
     # --- 反向映射关系 ---
     # 一个目标分类下有多个目标
@@ -53,6 +55,7 @@ class Goal(GoalBase):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('user.id'), nullable=False, comment="外键关联-用户id")
     goal_name: Mapped[str] = mapped_column(String(50), comment="目标名称")
     description: Mapped[str] = mapped_column(Text, nullable=True, default="待完善", comment="目标描述|预期达成结果")
+    cover: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, comment="目标分类封面")
     # 目标分类id
     goal_category_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey('goal_category.id'), nullable=True,
                                                             comment="外键-目标分类id")

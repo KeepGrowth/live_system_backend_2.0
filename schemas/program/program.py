@@ -46,13 +46,16 @@ class ProgramQueryParams(ProgramUpdateRequest):
     page_size: Optional[int] = Field(1000, description="每页数量", alias="pageSize")
     start_year: Optional[int] = Field(None, description="开始时间", alias="startYear")
     end_year: Optional[int] = Field(None, description="结束时间", alias="endYear")
+    program_status: Optional[int] = Field(None, description="项目状态：0待完成，1进行中，2已完成,3已放弃",
+                                          alias="status")
+    keyword: Optional[str] = Field(None, description="搜索关键字", alias="keyWord")
 
 
 # 单个项目信息响应数据校验模型
 class ProgramJoinItemResponse(ProgramAddRequest):
     id: Optional[int] = Field(None, description="项目id", alias="id")
-    create_time: datetime = Field(None, description="创建时间", alias="createTime")
-    update_time: datetime = Field(None, description="更新时间", alias="updateTime")
+    create_time_str: datetime = Field(None, description="创建时间", alias="createTimeStr")
+    update_time_str: datetime = Field(None, description="更新时间", alias="updateTimeStr")
     focus_time: Optional[int] = Field(None, description="项目专注时长", alias="focusTime")
     # 关联信息
     program_log: Optional[ProgramLogItemResponse] = Field(None, description="项目日志", alias="programLog")
@@ -62,6 +65,7 @@ class ProgramJoinItemResponse(ProgramAddRequest):
     todo_logs: Optional[list[TodoLogItemResponse]] = Field(None, description="todo日志列表", alias="todoLogList")
     # 一对多信息
     okrs: Optional[list[OkrItemResponse]] = Field(None, description="项目OKR列表", alias="okrList")
+    goal_name: Optional[str] = Field(None, description="目标名称", alias="goalName")
     upload_images: Optional[list[UploadImagesResponse]] = Field(None, description="项目图片列表", alias="imageUrls")
 
     model_config = ConfigDict(

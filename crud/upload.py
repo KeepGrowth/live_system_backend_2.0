@@ -27,6 +27,23 @@ async def add_image(db: AsyncSession, image_params: dict, image_url: str):
     return new_image
 
 
+async def update_upload(update_data: dict, db: AsyncSession):
+    return await sql.update_by_id(db=db, model=UploadImages, update_data=update_data, item_id=update_data['id'])
+
+
+# 根据okrid查询
+async def get_upload_by_okr_id(
+        okr_id: int,
+        db: AsyncSession,
+):
+    """
+    根据id查询todo
+    """
+    stmt = select(UploadImages).where(UploadImages.okr_id == okr_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 # 获取总数
 async def get_total_list(db: AsyncSession,
                          user_id: int):

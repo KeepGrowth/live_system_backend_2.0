@@ -69,3 +69,14 @@ class OkrListResponse(BaseModel):
         populate_by_name=True,  # alias 、字段名兼容
         from_attributes=True  # 允许从ORM对象属性中取值
     )
+
+
+# OKR列表响应数据校验模型
+class OkrDetailListResponse(BaseModel):
+    total: int = Field(None, description="OKR总数")
+    okr_list: list[OkrDetailResponse] = Field(None, description="OKR列表", alias="okrList")
+
+    model_config = ConfigDict(
+        populate_by_name=True,  # alias 、字段名兼容
+        from_attributes=True  # 允许从ORM对象属性中取值
+    )
