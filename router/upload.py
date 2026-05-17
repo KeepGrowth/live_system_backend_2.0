@@ -44,7 +44,7 @@ async def upload_image(
     # 3. 生成唯一文件名，防止覆盖
     ext = file.filename.split(".")[-1] if "." in file.filename else "png"
     unique_filename = f"{current_user}_{uuid.uuid4().hex}.{ext}"
-    file_path = f"/uploads/{unique_filename}"
+    file_path = f"{UPLOAD_DIR}{unique_filename}"
 
     # 4. 保存文件 (异步写入)
     try:
@@ -54,7 +54,7 @@ async def upload_image(
         raise HTTPException(status_code=500, detail=f"文件保存失败: {str(e)}")
 
     # 5. 构建返回给前端的 URL
-    file_url = f"{BASE_URL}{file_path}"
+    file_url = f"{BASE_URL}/uploads/{unique_filename}"
     params.user_id = current_user
     new_image = await add_image(db, image_params=params.to_non_empty_dict(), image_url=file_url)
 
