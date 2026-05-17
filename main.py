@@ -45,7 +45,7 @@ app.include_router(income.router)
 app.include_router(expense.router)
 
 # 挂载uploads目录为静态文件目录
-app.mount(UPLOAD_DIR, StaticFiles(directory=UPLOAD_DIR), name="uploads")
+app.mount("/uploads/", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 # cors跨域中间件
 app.add_middleware(
