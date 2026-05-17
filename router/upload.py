@@ -39,6 +39,7 @@ async def upload_image(
             msg=f"不支持的文件类型: {file.content_type}。仅允许: {', '.join(ALLOWED_EXTENSIONS)}"
         )
     contents = await file.read()
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     # 3. 生成唯一文件名，防止覆盖
     ext = file.filename.split(".")[-1] if "." in file.filename else "png"
