@@ -17,4 +17,4 @@ RUN mkdir -p /app/uploads
 EXPOSE 8080
 
 # 6. 启动命令 (如果 docker-compose 中没有指定 command，则使用此命令) uvicorn main:app --reload --port 8084
-CMD ["uvicorn", "main:app" ,"--port","8891","--workers","4","--host","0.0.0.0"]
+CMD ["uvicorn", "main:app" ,"--port","8080","--workers","4","--host","0.0.0.0"]
