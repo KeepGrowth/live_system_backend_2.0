@@ -11,9 +11,10 @@ RUN pip install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com
 
 # 4. 复制项目所有代码
 COPY . .
+RUN mkdir -p /app/uploads
 
 # 5. 暴露端口 (视你的应用而定)
-EXPOSE 8084
+EXPOSE 8080
 
 # 6. 启动命令 (如果 docker-compose 中没有指定 command，则使用此命令) uvicorn main:app --reload --port 8084
-CMD ["uvicorn", "main:app" ,"--reload","--port","8084"]
+CMD ["uvicorn", "main:app" ,"--reload","--port","8080"]

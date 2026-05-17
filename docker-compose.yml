@@ -4,15 +4,18 @@ services:
   # 服务名称，你可以自定义，比如叫 web, api, app
   live-system-api-2.0:
     build: .              # 指定 Dockerfile 所在的目录，. 代表当前目录
-    container_name: live-system-api-2.0  # 指定容器名称，方便管理
-    restart: always       # 容器退出后自动重启，保证服务高可用
-    #将当前目录 (.) 挂载到容器的 /app 目录
-    volumes:
-      - .:/app
-
     # 端口映射：宿主机端口:容器内端口
     ports:
-      - "8084:8084"       # 如果你的 Python 应用运行在 8084 端口
+      - "8086:8080"       # 如果你的 Python 应用运行在 8086 端口
+    container_name: live-system-api-2.0  # 指定容器名称，方便管理
+    restart: always       # 容器退出后自动重启，保证服务高可用
+    #将宿主机目录 ↔ 容器内目录 挂载
+    volumes:
+      - /vol02/1000-1-ad70/夸克网盘/VueSystemFiles/live-system-2:/app/uploads
+    environment:
+      # 让你的代码读取这个环境变量作为存储路径
+      - UPLOAD_DIR=/app/uploads
+
 
 # 定义数据卷
 volumes:
