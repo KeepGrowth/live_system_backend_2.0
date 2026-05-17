@@ -44,7 +44,7 @@ async def upload_image(
     # 3. 生成唯一文件名，防止覆盖
     ext = file.filename.split(".")[-1] if "." in file.filename else "png"
     unique_filename = f"{current_user}_{uuid.uuid4().hex}.{ext}"
-    file_path = f"{UPLOAD_DIR}{unique_filename}"
+    file_path = f"{UPLOAD_DIR}/{unique_filename}"
 
     # 4. 保存文件 (异步写入)
     try:
