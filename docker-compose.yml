@@ -9,6 +9,7 @@ services:
       - "8891:8080"       # 如果你的 Python 应用运行在 8891 端口
     container_name: live-system-api-2.0  # 指定容器名称，方便管理
     restart: always       # 容器退出后自动重启，保证服务高可用
+    user: root        # 将目录权限切换为 root
     #将宿主机目录 ↔ 容器内目录 挂载
     volumes:
       - /vol02/1000-1-ad70/夸克网盘/VueSystemFiles/live-system-2:/app/uploads
@@ -16,7 +17,3 @@ services:
       # 让你的代码读取这个环境变量作为存储路径
       - UPLOAD_DIR=/app/uploads
 
-
-# 定义数据卷
-volumes:
-  db-data:
