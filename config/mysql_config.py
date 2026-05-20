@@ -27,7 +27,7 @@ ASYNC_DATABASE_URL = "mysql+aiomysql://root:mysql_bhjbrr@192.168.1.86:3306/live_
 # 创建异步引擎
 async_engine = create_async_engine(
     ASYNC_DATABASE_URL,
-    echo=True,  # 输出SQL日志；
+    echo=None,  # 输出SQL日志；
     pool_size=10,  # 设置连接池中保持的持久连接数
     max_overflow=20,  # 设置连接池允许创建的额外连接数
 )
