@@ -70,6 +70,7 @@ async def get_todo_list(
         item.focus_time = sum(getattr(log, 'focus_time', 0) or 0 for log in item.todo_logs)
     todo_list = [TodoJoinItemResponse().model_validate(r) for r in result]
     res_data = TodoListResponse(todo_list=todo_list, total=total)
+    r.set
     return Result.success(data=res_data)
 
 
