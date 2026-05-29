@@ -39,6 +39,8 @@ async def query_okr_list(
     total_stmt = select(func.count(Okr.id))
     list_stmt = select(Okr).options(
         selectinload(Okr.upload_images),
+        selectinload(Okr.todo_logs),
+        selectinload(Okr.todos),
         selectinload(Okr.program),
         selectinload(Okr.goal),
         selectinload(Okr.user),

@@ -61,6 +61,8 @@ async def get_goal_list(
     goal_query_params.user_id = current_user_id
     total, goal_list = await goal.query_goal_list(db,
                                                   goal_query_params.model_dump(exclude_none=True, exclude_unset=True))
+    for item in goal_list:
+        item.focus_time = sum(getattr(log, 'focus_time', 0) or 0 for log in item.todo_logs)
     goal_list = [GoalJoinItemResponse().model_validate(r) for r in goal_list]
     res_data = GoalListResponse(total=total, goal_list=goal_list)
     return Result.success(data=res_data)

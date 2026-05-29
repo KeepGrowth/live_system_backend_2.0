@@ -44,6 +44,8 @@ async def get_okr_list(
     okr_query_params.user_id = current_user_id
     total, result = await okr.query_okr_list(db, query_params=okr_query_params.model_dump(exclude_none=True,
                                                                                           exclude_unset=True))
+    for item in result:
+        item.focus_time = sum(getattr(log, 'focus_time', 0) or 0 for log in item.todo_logs)
     okr_list = [OkrDetailResponse().model_validate(r) for r in result]
     res_data = OkrDetailListResponse(okr_list=okr_list, total=total)
     return Result.success(data=res_data)

@@ -69,6 +69,7 @@ class GoalJoinItemResponse(GoalAddRequest):
     id: int = Field(None, description="目标id", alias="id")
     user: Optional[SafeUserResponse] = Field(None, description="目标创建者信息", alias="user")
     goal_status_label: Optional[str] = Field(None, description="目标状态标签", alias="goalStatusLabel")
+    focus_time: Optional[float] = Field(None, description="专注时间", alias="focusTime")
     goal_category: Optional[GoalCategoryItemResponse] = Field(None, description="目标分类名称", alias="goalCategory")
     upload_images: list[UploadImagesResponse] = Field(None, description="目标图片列表", alias="imageUrls")
     create_time_str: Optional[str] = Field(None, description="目标创建时间", alias="createTimeStr")

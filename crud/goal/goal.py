@@ -55,6 +55,7 @@ async def query_goal_list(
     list_stmt = select(Goal).options(
         selectinload(Goal.user),
         selectinload(Goal.upload_images),
+        selectinload(Goal.todos),
         selectinload(Goal.goal_category),
     )
     # 1. 初始化总数查询和列表查询的基础语句（都限定当前用户）

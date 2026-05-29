@@ -46,6 +46,8 @@ class OkrDetailResponse(OkrAddRequest):
     id: Optional[int] = Field(None, description="OKR id", alias="id")
     user: Optional[SafeUserResponse] = Field(None, description="用户名称", alias="user")
     program_name: Optional[str] = Field(None, description="项目名称", alias="programName")
+    todos: Optional[list[TodoItemResponse]] = Field(None, description="待办清单", alias="todoList")
+    focus_time: Optional[float] = Field(None, description='OKR专注时间', alias="focusTime")
     goal_name: Optional[str] = Field(None, description="目标名称", alias="goalName")
     create_time_str: Optional[str] = Field(None, description="创建时间", alias="createTimeStr")
     update_time_str: Optional[str] = Field(None, description="更新时间", alias="updateTimeStr")

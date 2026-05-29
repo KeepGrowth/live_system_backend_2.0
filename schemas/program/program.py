@@ -61,7 +61,7 @@ class ProgramJoinItemResponse(ProgramAddRequest):
     program_log: Optional[ProgramLogItemResponse] = Field(None, description="项目日志", alias="programLog")
     # 用户信息
     user: Optional[SafeUserResponse] = Field(None, description="用户信息", alias="user")
-    # todo日志信息
+    # 待办日志信息
     todo_logs: Optional[list[TodoLogItemResponse]] = Field(None, description="todo日志列表", alias="todoLogList")
     # 一对多信息
     okrs: Optional[list[OkrItemResponse]] = Field(None, description="项目OKR列表", alias="okrList")
