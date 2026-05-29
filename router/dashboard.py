@@ -1,7 +1,10 @@
 """
 数据整体指标复盘接口
 """
+import json
+
 import pandas as pd
+import redis.asyncio as redis
 from fastapi import HTTPException
 from starlette import status
 from fastapi import APIRouter, Depends, Query
@@ -23,7 +26,6 @@ router = APIRouter(
     prefix='/api/dashboard',
     tags=['dashboard'],
 )
-
 indicator_calculator = AccumulateStatisticCard()
 
 
@@ -56,7 +58,7 @@ async def get_statistic_card(
     okr_list = pd.DataFrame(okr_list)
     okr_indicator: dict = indicator_calculator.calculate_completion_stats(okr_list, completed_status_num=1)
 
-    # 4. 获取todo数据
+    # 4. 获取待办数据
     todo_result = await todo.get_total_list(db, current_user_id)
     todo_list = [r.__dict__ for r in todo_result]
     todo_list = pd.DataFrame(todo_list)

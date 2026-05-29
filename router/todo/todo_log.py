@@ -1,3 +1,6 @@
+import json
+
+import redis.asyncio as redis
 from fastapi import HTTPException, Body, Path
 from starlette import status
 from fastapi import APIRouter, Depends, Query
@@ -57,6 +60,7 @@ async def get_todo_log_list(
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
+
     filter_data.user_id = current_user_id
     total, result = await todo_log.query_todo_log_list(db=db,
                                                        filter_data=filter_data.model_dump(exclude_none=True,
