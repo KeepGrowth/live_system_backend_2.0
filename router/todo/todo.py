@@ -1,3 +1,4 @@
+import redis.asyncio as redis
 from fastapi import HTTPException, Body, Path
 from starlette import status
 from fastapi import APIRouter, Depends, Query
@@ -32,7 +33,7 @@ async def add_todo(
     return Result.success(msg='新增Todo成功', data=result.id)
 
 
-# 获取todo详情
+# 获取待办详情
 @router.get('/detail/{todo_id}')
 async def get_todo_detail(
         todo_id: int = Path(...),
@@ -54,7 +55,7 @@ async def get_todo_detail(
     return Result.success(data=TodoItemResponse().model_validate(result))
 
 
-# 条件查询todo列表
+# 条件查询待办列表
 @router.get('/list')
 async def get_todo_list(
         filter_data: TodoQueryRequest = Query(...),
@@ -69,6 +70,7 @@ async def get_todo_list(
         item.focus_time = sum(getattr(log, 'focus_time', 0) or 0 for log in item.todo_logs)
     todo_list = [TodoJoinItemResponse().model_validate(r) for r in result]
     res_data = TodoListResponse(todo_list=todo_list, total=total)
+    r.set
     return Result.success(data=res_data)
 
 
