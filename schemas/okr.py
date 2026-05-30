@@ -30,6 +30,9 @@ class OkrUpdateRequest(OkrAddRequest):
 class OkrQueryParams(OkrAddRequest):
     page: Optional[int] = Field(None, description="页码", alias="page")
     page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
+    start_year: Optional[int] = Field(None, description='所在年份', alias="startYear")
+    end_year: Optional[int] = Field(None, description="结束年份", alias="endYear")
+    keyword: Optional[str] = Field(None, description='关键词')
 
 
 # 联表查询 单个信息响应数据校验模型

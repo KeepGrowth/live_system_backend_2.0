@@ -45,6 +45,24 @@ async def query_okr_list(
         selectinload(Okr.goal),
         selectinload(Okr.user),
     )
+    if query_params.get('keyword', None):
+        list_stmt = list_stmt.where(
+            Okr.kr_name.like(f'%{query_params.get("keyword")}%')
+        )
+        total_stmt = total_stmt.where(
+            Okr.kr_name.like(f'%{query_params.get("keyword")}%')
+        )
+        query_params.pop('keyword')
+
+    # 比较年份
+    if query_params.get('start_year', None):
+        total_stmt = total_stmt.where(Okr.create_time >= datetime.date(int(query_params['start_year']), 1, 1))
+        list_stmt = list_stmt.where(Okr.create_time >= datetime.date(query_params['start_year'], 1, 1))
+        query_params.pop('start_year')
+    if query_params.get('end_year', None):
+        total_stmt = total_stmt.where(Okr.create_time <= datetime.date(query_params['end_year'], 12, 31))
+        list_stmt = list_stmt.where(Okr.create_time <= datetime.date(query_params['end_year'], 12, 31))
+        query_params.pop('end_year')
     return await sql.common_query_list(db, query_params, total_stmt, list_stmt, Okr)
 
 
