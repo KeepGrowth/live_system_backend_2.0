@@ -77,7 +77,6 @@ class ProgramJoinItemResponse(ProgramAddRequest):
 class ProgramItemResponse(ProgramAddRequest):
     id: Optional[int] = Field(None, description="项目id", alias="id")
     user: Optional[SafeUserResponse] = Field(None, description="项目创建者信息", alias="user")
-    program_log: Optional[ProgramLogItemResponse] = Field(None, description="项目日志", alias="programLog")
     create_time: datetime = Field(None, description="创建时间", alias="createTime")
     update_time: datetime = Field(None, description="更新时间", alias="updateTime")
     upload_images: Optional[list[UploadImagesResponse]] = Field(None, description="项目图片列表", alias="imageUrls")

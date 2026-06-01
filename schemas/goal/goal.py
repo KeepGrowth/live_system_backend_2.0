@@ -72,6 +72,7 @@ class GoalJoinItemResponse(GoalAddRequest):
     focus_time: Optional[float] = Field(None, description="专注时间", alias="focusTime")
     goal_category: Optional[GoalCategoryItemResponse] = Field(None, description="目标分类名称", alias="goalCategory")
     upload_images: list[UploadImagesResponse] = Field(None, description="目标图片列表", alias="imageUrls")
+    programs: list[ProgramItemResponse] = Field(None,description='项目列表',alias="programList")
     create_time_str: Optional[str] = Field(None, description="目标创建时间", alias="createTimeStr")
     update_time_str: Optional[str] = Field(None, description="目标更新时间", alias="updateTimeStr")
 

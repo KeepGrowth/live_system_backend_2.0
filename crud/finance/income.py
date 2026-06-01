@@ -65,6 +65,19 @@ async def get_income_by_id(
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
+async def get_income_by_okr_id(
+        okr_id: int,
+        db: AsyncSession,
+):
+    """
+    根据id查询expense
+    :param okr_id:
+    :param db:
+    :return:
+    """
+    stmt = select(Income).where(Income.okr_id == okr_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 # 更新
 async def update_income(

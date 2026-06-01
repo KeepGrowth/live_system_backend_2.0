@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud import upload, okr
 from crud.todo import todo, todo_log
+from crud.finance import expense, income
 from models.okr import Okr
 from models.program import Program
 from models.todo.todo import Todo
@@ -26,6 +27,7 @@ async def update_todo_bind_data(db: AsyncSession, todo_object: Todo):
         updated_todo_log = await todo_log.update_todo_log(todo_log_record.__dict__, db)
         await update_todo_log_bind_data(db, updated_todo_log)
 
+
 async def update_todo_log_bind_data(db: AsyncSession, todo_log_object: TodoLog):
     """
     当待办日志信息发生改变时，同步更新图片绑定的OkrId、项目ID、目标ID。
@@ -41,13 +43,41 @@ async def update_todo_log_bind_data(db: AsyncSession, todo_log_object: TodoLog):
         upload_image.goal_id = todo_log_object.goal_id
         await upload.update_upload(upload_image.__dict__, db)
 
+
+async def update_expense_bind_data(db: AsyncSession, program_object: Program):
+    """
+    当支出信息改变时，同步更新关联图片的OKR、项目和目标ID。
+    :param db:
+    :param program_object:
+    :return:
+    """
+    okr_records = await okr.get_okr_by_program_id(program_object.id, db)
+    for item in okr_records:
+        item.goal_id = program_object.goal_id
+        updated_okr = await okr.update_okr(item.__dict__, db)
+        await update_okr_bind_data(db, updated_okr)
+
+
 async def update_okr_bind_data(db: AsyncSession, okr_object: Okr):
     """
-    当OKR信息发生改变时，同步更新待办、待办日志以及图片绑定的OkrID、项目ID、目标ID。
+    当OKR信息发生改变时，同步更新收入、支出、待办、待办日志以及图片绑定的OkrID、项目ID、目标ID。
     :param db:
     :param okr_object:
     :return:
     """
+    # 更新收入支出绑定的信息。
+    expense_records = await expense.get_expense_by_okr_id(okr_object.id, db)
+    for item in expense_records:
+        item.program_id = okr_object.program_id
+        item.goal_id = okr_object.goal_id
+        await expense.update_expense(item.__dict__, db)
+
+    income_records = await income.get_income_by_okr_id(okr_object.id, db)
+    for item in income_records:
+        item.program_id = okr_object.program_id
+        item.goal_id = okr_object.goal_id
+        await income.update_income(item.__dict__, db)
+
     todo_records = await todo.get_todo_by_okr_id(okr_object.id, db)
     for todo_record in todo_records:
         todo_record.program_id = okr_object.program_id
@@ -55,6 +85,7 @@ async def update_okr_bind_data(db: AsyncSession, okr_object: Okr):
         updated_todo = await todo.update_todo(todo_record.__dict__, db)
         # 更新待办绑定的信息。
         await update_todo_bind_data(db, updated_todo)
+
 
 async def update_program_bind_data(db: AsyncSession, program_object: Program):
     """

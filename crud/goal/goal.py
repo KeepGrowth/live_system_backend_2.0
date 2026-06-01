@@ -54,6 +54,9 @@ async def query_goal_list(
 ):
     list_stmt = select(Goal).options(
         selectinload(Goal.user),
+        selectinload(Goal.programs).options(
+            selectinload(Program.upload_images),
+        ),
         selectinload(Goal.upload_images),
         selectinload(Goal.todos),
         selectinload(Goal.goal_category),
