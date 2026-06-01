@@ -44,6 +44,18 @@ async def get_upload_by_okr_id(
     return result.scalars().all()
 
 
+async def get_upload_by_todo_log_id(
+        todo_log_id: int,
+        db: AsyncSession,
+):
+    """
+    根据id查询todo
+    """
+    stmt = select(UploadImages).where(UploadImages.todo_log_id == todo_log_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 # 获取总数
 async def get_total_list(db: AsyncSession,
                          user_id: int):

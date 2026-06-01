@@ -128,6 +128,22 @@ async def get_okr_by_id(
     return target_okr.scalar_one_or_none()
 
 
+# 根据项目ID查询OKR
+async def get_okr_by_program_id(
+        program_id: int,
+        db: AsyncSession,
+):
+    """
+    根据项目ID查询OKR
+    :param program_id:
+    :param db:
+    :return:
+    """
+    stmt = select(Okr).where(Okr.program_id == program_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 # 更新
 async def update_okr(
         update_data: dict,

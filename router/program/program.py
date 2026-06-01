@@ -3,10 +3,13 @@ from starlette import status
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
+from crud import upload
 from crud.program import program
+from crud.todo import todo, todo_log
 from models.users import User
 from schemas.program.program import ProgramAddRequest, ProgramItemResponse, ProgramListResponse, ProgramUpdateRequest, \
     ProgramQueryParams, ProgramJoinItemResponse
+from utils import service_utils
 from utils.auth import get_current_user
 from utils.common import convert_to_year_program_options
 from utils.response import Result
@@ -111,7 +114,7 @@ async def update_program(
         current_user_id: int = Depends(get_current_user)
 ):
     """
-    更新项目信息
+    更新项目信息，同时更新okr|待办|日志|图片绑定的对应目标ID。
     :param update_program_info:更新的项目信息
     :param db:数据库会话
     :param current_user_id:当前用户ID
@@ -120,7 +123,14 @@ async def update_program(
     updated_program = await program.update_program(db=db,
                                                    update_data=update_program_info.model_dump(
                                                        exclude_none=True,
-                                                       exclude_unset=True))
+                                                       exclude_unset=True)
+                                                   )
+    if not updated_program:
+        return Result.error(msg='更新项目信息失败', code=403)
+
+    # 同步更新与此项目相关的数据。
+    await service_utils.update_program_bind_data(db, updated_program)
+
     return Result.success()
 
 

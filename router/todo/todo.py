@@ -12,6 +12,7 @@ from models.users import User
 from schemas.todo.todo import *
 from utils.auth import get_current_user
 from utils.response import Result
+from utils import service_utils
 
 router = APIRouter(
     prefix='/api/todo',
@@ -80,6 +81,7 @@ async def update_todo(
         current_user_id: int = Depends(get_current_user)
 ):
     update_data.user_id = current_user_id
+    # 把绑定的OKR信息也同步绑定给此待办。
     if update_data.okr_id:
         okr = await get_okr_by_id(db, update_data.okr_id)
         update_data.program_id = okr.program_id
@@ -87,6 +89,10 @@ async def update_todo(
     result = await todo.update_todo(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='未找到该Todo')
+
+    # 同步更新待办绑定的相关数据。
+    await service_utils.update_todo_bind_data(db, result)
+
     updated_todo = TodoItemResponse().model_validate(result)
     return Result.success(data=updated_todo)
 

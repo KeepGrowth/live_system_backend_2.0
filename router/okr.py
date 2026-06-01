@@ -1,16 +1,14 @@
-from fastapi import HTTPException, Path
-from starlette import status
+from fastapi import Path
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from config.mysql_config import get_database
-from crud import okr, upload
-from crud.todo import todo, todo_log
-from models.users import User
+from crud import okr
 from schemas.okr import *
 from utils.auth import get_current_user
 from utils.common import convert_to_year_program_okr_options
 from utils.response import Result
 from crud.program import program
+from utils.service_utils import update_okr_bind_data
 
 # 创建api-router实例
 router = APIRouter(
@@ -92,29 +90,11 @@ async def update_okr(
         update_data.program_id = program_info.id
         update_data.goal_id = program_info.goal_id
     result = await okr.update_okr(update_data.model_dump(exclude_none=True, exclude_unset=True), db)
-
-    # 同步更新todo、todo_log、图片附件
-    todo_records = await todo.get_todo_by_okr_id(result.id, db)
-    for todo_record in todo_records:
-        todo_record.okr_id = result.id
-        todo_record.program_id = result.program_id
-        todo_record.goal_id = result.goal_id
-        await todo.update_todo(todo_record.__dict__, db)
-
-    todo_log_records = await todo_log.get_log_by_okr_id(result.id, db)
-    for todo_log_record in todo_log_records:
-        todo_log_record.okr_id = result.id
-        todo_log_record.program_id = result.program_id
-        todo_log_record.goal_id = result.goal_id
-        await todo_log.update_todo_log(todo_log_record.__dict__, db)
-    upload_images = await upload.get_upload_by_okr_id(result.id, db)
-    for upload_image in upload_images:
-        upload_image.okr_id = result.id
-        upload_image.program_id = result.program_id
-        upload_image.goal_id = result.goal_id
-        await upload.update_upload(upload_image.__dict__, db)
     if not result:
         return Result.error(msg='更新OKR失败', code=403)
+
+    # 更新待办、待办日志、图片绑定的OKR
+    await update_okr_bind_data(db, result)
     updated_okr = OkrItemResponse().model_validate(result)
     return Result.success(data=updated_okr)
 

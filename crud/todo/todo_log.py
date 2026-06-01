@@ -70,6 +70,19 @@ async def get_log_by_okr_id(
     return result.scalars().all()
 
 
+# 根据待办ID查询
+async def get_log_by_todo_id(
+        todo_id: int,
+        db: AsyncSession,
+):
+    """
+    根据待办ID查询待办日志列表。
+    """
+    stmt = select(TodoLog).where(TodoLog.todo_id == todo_id)
+    result = await db.execute(stmt)
+    return result.scalars().all()
+
+
 # 新增
 async def add_todo_log(add_data: dict, db: AsyncSession):
     new_todo_log = TodoLog(**add_data)

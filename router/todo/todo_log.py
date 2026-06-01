@@ -13,6 +13,7 @@ from schemas.todo.todo_log import *
 from utils.auth import get_current_user
 from utils.response import Result
 from crud.todo.todo import *
+from utils import service_utils
 
 router = APIRouter(
     prefix='/api/todo_log',
@@ -60,7 +61,6 @@ async def get_todo_log_list(
         db: AsyncSession = Depends(get_database),
         current_user_id: int = Depends(get_current_user)
 ):
-
     filter_data.user_id = current_user_id
     total, result = await todo_log.query_todo_log_list(db=db,
                                                        filter_data=filter_data.model_dump(exclude_none=True,
@@ -94,7 +94,17 @@ async def update_todo_log(
     if update_log_info.user_id != current_user_id:
         return Result.error(msg="无权限更新该TodoLog", code=403)
     update_log_info.user_id = current_user_id
+    if update_log_info.todo_id:
+        todo = await todo_log.get_log_by_todo_id(update_log_info.todo_id,db)
+        update_log_info.okr_id = todo.okr_id
+        update_log_info.program_id = todo.program_id
+        update_log_info.goal_id = todo.goal_id
     result = await todo_log.update_todo_log(update_log_info.model_dump(exclude_none=True, exclude_unset=True), db)
+    if not result:
+        return Result.error('更新日志失败TodoLog', code=403)
+
+    # 同步更新日志绑定的信息。
+    await service_utils.update_todo_log_bind_data(db, result)
     updated_todo_log = TodoLogItemResponse().model_validate(result)
     return Result.success(data=updated_todo_log)
 
