@@ -41,8 +41,8 @@ class GoalQueryParams(BaseModel):
     user_id: Optional[int] = Field(None, description="用户id", alias="userId")
     start_year: Optional[int] = Field(None, description="开始时间", alias="startYear")
     end_year: Optional[int] = Field(None, description="结束时间", alias="endYear")
-    page: Optional[int] = Field(None, description="页码", alias="page")
-    page_size: Optional[int] = Field(None, description="每页数量", alias="pageSize")
+    page: Optional[int] = Field(1, description="页码", alias="page")
+    page_size: Optional[int] = Field(20, description="每页数量", alias="pageSize")
     keyword: Optional[str] = Field(None, description="搜索关键字", alias="keyWord")
     # 目标状态
     goal_status: Optional[int] = Field(None, description="目标状态：0待完成，1进行中，2已完成,3已放弃", alias="status")

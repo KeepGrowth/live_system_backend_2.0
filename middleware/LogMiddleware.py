@@ -1,5 +1,5 @@
 import time
-import logging
+from loguru import logger
 from fastapi import Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
@@ -7,10 +7,6 @@ from starlette.datastructures import Headers
 
 from config.mysql_config import get_database, AsyncSessionLocal
 from crud.log.system_log import add_log
-
-# 配置一下基本的日志格式（可选，为了好看点）
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-logger = logging.getLogger("AccessLog")
 
 
 class LogMiddleware(BaseHTTPMiddleware):

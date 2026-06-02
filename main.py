@@ -123,5 +123,6 @@ if __name__ == "__main__":
         "main:app",
         reload=True,
         port=8080,
+        access_log=False,
         host="0.0.0.0"
     )

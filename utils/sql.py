@@ -1,4 +1,4 @@
-from typing import Tuple, List, Type, Optional
+from typing import Tuple, List, Type, Optional, Any
 from sqlalchemy import select, func, delete, inspect, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase
@@ -69,7 +69,7 @@ async def get_list_by_user_id(
         user_id: int,
         page: int = 1,
         page_size: int = 10,
-        extra_filter: Optional[any] = None,  # 扩展：支持额外过滤条件
+        extra_filter: Optional[Any] = None,  # 扩展：支持额外过滤条件
 ):
     """
     通用分页查询方法：根据user_id查询指定模型的列表（带分页）

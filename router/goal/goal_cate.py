@@ -43,13 +43,12 @@ async def get_goal_cate_list(
     :return:
     """
     goal_cate_query_params.user_id = current_user_id
-    total, goal_cate_list = await goal_cate.query_goal_category_list(db,
-                                                                     goal_cate_query_params.model_dump(
-                                                                         exclude_none=True,
-                                                                         exclude_unset=True))
+    total, goal_cate_list = await goal_cate.get_goal_category_list(db,
+                                                                   goal_cate_query_params.model_dump(
+                                                                       exclude_none=True,
+                                                                       exclude_unset=True))
     goal_cate_list = [GoalCategoryItemResponse().model_validate(r) for r in goal_cate_list]
-    res_data = GoalCategoryListResponse(goal_cate_list=goal_cate_list, total=total,
-                                        has_more=total > len(goal_cate_list))
+    res_data = GoalCategoryListResponse(goal_cate_list=goal_cate_list)
     return Result.success(data=res_data)
 
 

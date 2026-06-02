@@ -1,13 +1,18 @@
 import datetime
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
+from pydantic import model_validator
 from sqlalchemy.orm import selectinload, joinedload
 from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
+
+from cache import goal_cache
 from models.goal.goal import Goal
 from models.okr import Okr
 from models.program import Program
 from models.todo.todo import Todo
+from schemas.goal.goal import GoalJoinItemResponse
 from utils import sql
 
 
@@ -50,8 +55,23 @@ async def get_goal_by_id(
 # 获取列表
 async def query_goal_list(
         db: AsyncSession,
-        query_params: dict = None,
+        query_params: dict,
 ):
+    """
+    带缓存-分页-分类-查询目标列表数据。
+    :param db:
+    :param query_params:
+    :return:
+    """
+    # 先从缓存读取数据
+    goal_list = await goal_cache.get_cached_goals(
+        page=query_params.get('page', None),
+        page_size=query_params.get('page_size', None),
+        first_cate_id=query_params.get('first_cate_id', None),
+        user_id=query_params.get('user_id', None),
+    )
+    if goal_list:
+        return len(goal_list), goal_list
     list_stmt = select(Goal).options(
         selectinload(Goal.user),
         selectinload(Goal.programs).options(
@@ -83,6 +103,19 @@ async def query_goal_list(
         query_params.pop('end_year')
 
     total, goal_list = await sql.common_query_list(db, query_params, total_stmt, list_stmt, Goal)
+
+    # 写入缓存
+    if goal_list:
+        # 将数据转为pydantic类型
+        goal_data = [GoalJoinItemResponse.model_validate(item).model_dump(mode="json", by_alias=False) for item in
+                     goal_list]
+        await goal_cache.set_cached_goals(
+            page=query_params.get('page', None),
+            page_size=query_params.get('page_size', None),
+            first_cate_id=query_params.get('first_cate_id', None),
+            user_id=query_params['user_id'],
+            goal_list=goal_data,
+        )
     return total, goal_list
 
 

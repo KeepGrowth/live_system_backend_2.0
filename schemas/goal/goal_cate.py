@@ -22,8 +22,7 @@ class GoalCategoryUpdateRequest(GoalCategoryAddRequest):
 
 # 条件查询参数
 class GoalCategoryQueryParams(GoalCategoryAddRequest):
-    page: Optional[int] = Field(1, ge=1, description="页码")
-    page_size: Optional[int] = Field(10, ge=1, description="每页数量", alias="pageSize")
+    user_id: Optional[int] = Field(None, description='用户ID', alias='userId')
 
 
 # 单个目标分类信息返回数据模型
@@ -35,7 +34,6 @@ class GoalCategoryItemResponse(GoalCategoryAddRequest):
 
 # 目标分类列表返回数据模型
 class GoalCategoryListResponse(BaseModel):
-    total: int = Field(..., description="目标分类总数", alias="total")
     goal_category_list: List[GoalCategoryItemResponse] = Field(...,
                                                                description="目标分类列表",
                                                                alias="goalCategoryList")  # 驼峰alias

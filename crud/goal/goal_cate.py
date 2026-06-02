@@ -1,8 +1,12 @@
 import datetime
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
+
+from cache.goal_cache import get_cached_categories, set_cache_categories
+from config.cache_conf import set_cache
 from models.goal.goal import GoalCategory
 from utils import sql
 
@@ -32,11 +36,28 @@ async def delete_goal_category(
 async def get_goal_category_list(
         db: AsyncSession,
         user_id: int,
-        page: int = 1,
-        page_size: int = 10,
+
 ):
-    total, goal_category_list = await sql.get_list_by_user_id(db, GoalCategory, user_id, page, page_size)
-    return total, goal_category_list
+    """
+    带缓存的读取目标分类列表数据方法。
+    :param db:
+    :param user_id:用户ID
+    :return:
+    """
+    # 先从缓存中获取数据
+    goal_cate_list = await get_cached_categories()
+    if goal_cate_list:
+        return goal_cate_list
+    stmt = select(GoalCategory).where(GoalCategory.user_id == user_id)
+    result = await db.execute(stmt)
+    categories = result.scalars().all()  # ORM
+
+    # 写入缓存
+    if categories:
+        categories = jsonable_encoder(categories)  # 把ORM等复杂对象转为JSON能认识的格式-例如JSON数组。
+        await set_cache_categories(categories)
+    # 写入缓存
+    return categories
 
 
 # 条件分页查询列表
